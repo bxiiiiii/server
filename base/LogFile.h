@@ -23,4 +23,4 @@ private:
     time_t flustInterval_;
     time_t rollSize_;
     int maxCount_;
-}
+};

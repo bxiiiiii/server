@@ -1,5 +1,8 @@
 #include <iostream>
+#include "Channel.h"
+#include "CallBacks.h"
 
+// class Channel;
 class EventLoop
 {
 public:
@@ -9,6 +12,8 @@ public:
     void assertInLoopThread();
     bool isInLoopThread();
     void updateChannel(Channel *channel);
+    void runInLoop(const Functor& callback);
+    void queueInLoop(const Functor& callback);
     
 private:
     void abortNotInLoopThread();

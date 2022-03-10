@@ -1,15 +1,24 @@
 #include <poll.h>
+
+#include <map>
 #include <vector>
 
-class Poller
-{
-public:
-    typedef std::vector<Channel *>ChannelList;
+#include "Channel.h"
+#include "Timestamp.h"
 
-    Poller(EventLoop *loop);
-    ~Poller();
-    int poll()
-private:
-    EventLoop* loop_;
-    ChannelList activeChannels;
+class Poller {
+ public:
+  typedef std::vector<Channel*> ChannelList;
+
+  Poller(EventLoop* loop);
+  ~Poller();
+  Timestamp poll(int time, ChannelList* activeChannel);
+  void updateChannel(Channel* channel);
+
+ private:
+  void fileActiveChannels(int numEvents, ChannelList* activeChannels);
+
+  EventLoop* loop_;
+  std::vector<struct pollfd> PollFdList;
+  std::map<int, Channel*> ChannelMap;
 };

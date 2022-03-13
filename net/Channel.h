@@ -17,6 +17,13 @@ class Channel {
   int getFd();
   int getEvent();
   int getPollindex();
+  int getIndex();
+  EventLoop* getLoop();
+
+  void enableReading();
+  void enableWriting();
+  void disableWrting();
+  void disableAll();
 
   bool Is_NoneEvent();
 

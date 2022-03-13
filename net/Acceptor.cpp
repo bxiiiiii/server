@@ -26,6 +26,8 @@ void Acceptor::handleRead()
     cfd = socketopts::accept(sockfd_, &sockaddr_);
     if(cfd > 0){
         acceptcallback_(cfd, caddr);
+    } else {
+        socketopts::close(cfd);
     }
-    //FIXME:no fd
+    //TODO:no fd
 }

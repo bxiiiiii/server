@@ -1,12 +1,15 @@
 #include "Socket.h"
-#include <cstring>
+
 #include <errno.h>
+
+#include <cstring>
 
 using namespace socketopts;
 
 int createNoneblockingOrDie() {
   int sfd;
-  sfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sfd =
+      socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, IPPROTO_TCP);
   if (sfd < 0) {
     // TODO:log
   }
@@ -54,10 +57,9 @@ int accept(int sockfd, struct sockaddr_in* listenAddr) {
   return cfd;
 }
 
-void filladdr(struct sockaddr_in* addr)
-{
-    memset(addr, 0, sizeof(struct sockaddr_in));
-	addr->sin_family = AF_INET;
-	addr->sin_port = htons(9999);
-	addr->sin_addr.s_addr = htonl(INADDR_ANY);
+void filladdr(struct sockaddr_in* addr) {
+  memset(addr, 0, sizeof(struct sockaddr_in));
+  addr->sin_family = AF_INET;
+  addr->sin_port = htons(9999);
+  addr->sin_addr.s_addr = htonl(INADDR_ANY);
 }

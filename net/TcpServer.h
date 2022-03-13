@@ -19,7 +19,8 @@ class TcpServer {
   void newConnection(int sockfd, const struct sockaddr_in& addr);
   typedef std::map<std::string, TcpConnection> ConnectionMap;
   EventLoop* loop_;
+  std::auto_ptr<Acceptor> acceptor_;
   ConnectionCallBack connectionCallBack_;
   MessageCallBack messageCallBack_;
-  ConnectionMap connections;
+  ConnectionMap connections_;
 };

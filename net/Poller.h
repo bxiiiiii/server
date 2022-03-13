@@ -6,9 +6,9 @@
 #include "Channel.h"
 #include "Timestamp.h"
 
+typedef std::vector<Channel*> ChannelList;
 class Poller {
  public:
-  typedef std::vector<Channel*> ChannelList;
 
   Poller(EventLoop* loop);
   ~Poller();

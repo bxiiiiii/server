@@ -7,7 +7,8 @@
 
 EventLoop::EventLoop() : looping(false), threadId(syscall(SYS_gettid)) {}
 
-EventLoop::~EventLoop() = default;
+EventLoop::~EventLoop()
+{}
 
 void EventLoop::loop() {
   looping = true;
@@ -24,8 +25,11 @@ void EventLoop::loop() {
   looping = false;
 }
 
-void assertInLoopThread();
-bool isInLoopThread()
+void EventLoop::assertInLoopThread()
+{
+
+}
+bool EventLoop::isInLoopThread()
 {
 
 }
@@ -47,4 +51,12 @@ void EventLoop::runInLoop(const Functor& callback) {
   }
 }
 
-void EventLoop::queueInLoop(const Functor& callback) {}
+void EventLoop::queueInLoop(const Functor& callback) 
+{
+
+}
+
+void EventLoop::abortNotInLoopThread()
+{
+
+}

@@ -14,6 +14,13 @@ Acceptor::Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr)
     acceptChannel.setReadCallBack(std::bind(&Acceptor::handleRead, this));
 }
 
+Acceptor::~Acceptor(){}
+
+  void Acceptor::setAcceptCallBack(AcceptCallback& callback)
+  {
+      acceptcallback_ = callback;
+  }
+
 void Acceptor::listen() {
   listenning = true;
   socketopts::listenOrDie(sockfd_);

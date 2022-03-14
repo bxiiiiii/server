@@ -7,11 +7,28 @@
 #include "EventLoop.h"
 class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
  public:
+  TcpConnection(EventLoop* loop, const std::string& name, int sockfd,
+                const sockaddr_in& localAddr, const sockaddr_in& peerArrd);
+  ~TcpConnection();
+
+  EventLoop* getLoop();
+  const std::string& getname();
+  const sockaddr_in getlocalAddr();
+  const sockaddr_in getpeerAddr();
+  Buffer* getinputbuffer();
+  Buffer* getoutputbuffer();
+
+  bool connected();
+  bool disconnected();
+  void connectEstavlished();
+  void connectDestroyed();
+
   void setMessageCallBack(MessageCallBack& callback);
   void setConnectionCallBack(ConnectionCallBack& callback);
   void setCloseCallBack(CloseCallBack& callback);
 
   void send(const std::string& message);
+  void send(Buffer* message);
   void shutdown();
 
  private:
@@ -22,7 +39,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   void handleClose();
   void handleError();
 
-  void sendInLoop(const std::string& message);
+  void sendInLoop(const std::string& message, size_t len);
   void shutdownInLoop();
 
   EventLoop* loop_;

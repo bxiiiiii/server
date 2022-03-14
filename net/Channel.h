@@ -9,6 +9,7 @@ class Channel {
 
   void setReadCallBack(EventCallBack func);
   void setWriteCallBack(EventCallBack func);
+  void setCloseCallBack(EventCallBack func);
   void seterrorCallBack(EventCallBack func);
   void setRevent(int revent);
   void setPollindex(int idx);
@@ -29,6 +30,8 @@ class Channel {
 
   void handleEvent();
 
+  void remove();
+
  private:
   void update();
 
@@ -41,6 +44,9 @@ class Channel {
   int event_;
   int revent_;
   int Pollindex_;
+
+  bool addedToLoop_;
+  bool eventHanding_;
 
   EventCallBack readCallBack;
   EventCallBack writeCallBack;

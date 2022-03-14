@@ -8,11 +8,13 @@ const int Channel::kReadEvent = POLLIN;
 const int Channel::kWriteEvent = POLLOUT;
 
 Channel::Channel(int fd, EventLoop* loop)
-    : fd_(fd),
-      loop_(loop),
+    : loop_(loop),
+      fd_(fd),
       event_(kNoneEvent),
       revent_(kNoneEvent),
-      Pollindex_(-1) {}
+      Pollindex_(-1),
+      addedToLoop_(false),
+      eventHanding_(false) {}
 
 void Channel::setReadCallBack(EventCallBack func) { readCallBack = func; }
 
@@ -67,4 +69,13 @@ void Channel::handleEvent() {
   }
 }
 
-void Channel::update() { loop_->updateChannel(this); }
+void Channel::update() 
+{
+  addedToLoop_ = true;
+  loop_->updateChannel(this);
+}
+
+void Channel::remove() {
+  addedToLoop_ = false;
+  loop_->removeChannel(this);
+}

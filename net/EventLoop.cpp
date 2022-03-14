@@ -3,44 +3,47 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include <algorithm>
+
 #include "Poller.h"
 
-EventLoop::EventLoop() : looping(false), threadId(syscall(SYS_gettid)) {}
+EventLoop::EventLoop() 
+: looping_(false),
+   threadId(syscall(SYS_gettid)),
+   quit_(false),
+   eventHandling_(false) {}
 
-EventLoop::~EventLoop()
-{}
+EventLoop::~EventLoop() {}
 
 void EventLoop::loop() {
-  looping = true;
+  looping_ = true;
   quit_ = false;
 
-  while(!quit_){
+  while (!quit_) {
     activechannels_.clear();
     poller_->poll(0, &activechannels_);
-    for(auto event : activechannels_){
+    for (auto event : activechannels_) {
       event->handleEvent();
     }
   }
 
-  looping = false;
+  looping_ = false;
 }
 
-void EventLoop::assertInLoopThread()
-{
+void EventLoop::quit() { quit_ = true; }
 
-}
-bool EventLoop::isInLoopThread()
-{
-
-}
+void EventLoop::assertInLoopThread() {}
+bool EventLoop::isInLoopThread() {}
 
 void EventLoop::updateChannel(Channel* channel) {
   poller_->updateChannel(channel);
 }
 
-void EventLoop::removeChannel(Channel* channel)
-{
-
+void EventLoop::removeChannel(Channel* channel) {
+  if (eventHandling_) {
+    std::find(activechannels_.begin(), activechannels_.end(), channel);
+  }
+  poller_->removeChannel(channel);
 }
 
 void EventLoop::runInLoop(const Functor& callback) {
@@ -51,12 +54,6 @@ void EventLoop::runInLoop(const Functor& callback) {
   }
 }
 
-void EventLoop::queueInLoop(const Functor& callback) 
-{
+void EventLoop::queueInLoop(const Functor& callback) {}
 
-}
-
-void EventLoop::abortNotInLoopThread()
-{
-
-}
+void EventLoop::abortNotInLoopThread() {}

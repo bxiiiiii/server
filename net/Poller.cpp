@@ -33,6 +33,23 @@ void Poller::updateChannel(Channel* channel) {
   }
 }
 
+void Poller::removeChannel(Channel* channel) {
+  int idx = channel->getFd();
+  struct pollfd& event = PollFdList[idx];
+  int n = ChannelMap.erase(idx);
+  if (idx == PollFdList.size() - 1) {
+    PollFdList.pop_back();
+  } else {
+    int channelAtEnd = PollFdList.back().fd;
+    iter_swap(PollFdList.begin() + idx, PollFdList.end() - 1);
+    if (channelAtEnd < 0) {
+      channelAtEnd - -channelAtEnd - 1;
+    }
+    ChannelMap[channelAtEnd]->setPollindex(idx);
+    PollFdList.pop_back();
+  }
+}
+
 void Poller::fileActiveChannels(int numEvents, ChannelList* activeChannel) {
   for (auto event : PollFdList) {
     if (numEvents == 0) break;

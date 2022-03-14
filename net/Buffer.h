@@ -13,8 +13,9 @@ public:
     int prependableBytes();
 
     char* begin();
-    const void* peek();
-    void retrieve(ssize_t n);
+    const char* peek();
+    void retrieve(size_t n);
+    void retrieveAll();
     void append(const char* data, int len);
     void ensureWritableBytes(size_t len);
     char* beginWrite();

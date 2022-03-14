@@ -14,6 +14,7 @@ class Poller {
   ~Poller();
   Timestamp poll(int time, ChannelList* activeChannel);
   void updateChannel(Channel* channel);
+  void removeChannel(Channel* channel);
 
  private:
   void fileActiveChannels(int numEvents, ChannelList* activeChannels);

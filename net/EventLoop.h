@@ -10,6 +10,8 @@ public:
     EventLoop();
     ~EventLoop();
     void loop();
+    void quit();
+
     void assertInLoopThread();
     bool isInLoopThread();
 
@@ -21,8 +23,10 @@ public:
     
 private:
     void abortNotInLoopThread();
-    bool looping;
+    // void handleRead();
+    bool looping_;
     bool quit_;
+    bool eventHandling_;
     const pid_t threadId;
     std::auto_ptr<Poller> poller_;
     ChannelList activechannels_;

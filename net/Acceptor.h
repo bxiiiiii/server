@@ -10,6 +10,7 @@ class Acceptor {
 
   void setAcceptCallBack(AcceptCallback& callback);
   void listen();
+  bool listening();
 
  private:
   void handleRead();

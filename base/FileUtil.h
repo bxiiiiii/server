@@ -1,9 +1,9 @@
-#include <iostream>
+#include <string>
 
 static const int kBufferSize = 64 * 1024;
 class ReadSmallFile {
  public:
-  ReadSmallFile();
+  ReadSmallFile(std::string filename);
   ~ReadSmallFile();
   int readToBuffer(int* size);
   const char* getbuffer() const;
@@ -11,12 +11,12 @@ class ReadSmallFile {
  private:
   int fd_;
   int err_;
-  char buf[kBufferSize];
+  char buf_[kBufferSize];
 };
 
 class AppendFile {
  public:
-  AppendFile();
+  AppendFile(std::string filename);
   ~AppendFile();
   void append(const char* logline, size_t len);
   void flush();

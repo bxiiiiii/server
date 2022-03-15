@@ -28,7 +28,7 @@ class Logger {
       const char* slash = strrchr(filename, '/');
       if (slash) {
         data_ = slash + 1;
-        size_ -= static_cast<int>(strlen(data_));
+        size_ = static_cast<int>(strlen(data_));
       }
     }
 
@@ -80,8 +80,8 @@ inline Logger::LogLevel Logger::getloglevel() { return g_logLevel; }
 #define LOG_INFO                             \
   if (Logger::getloglevel() <= Logger::INFO) \
   Logger(__FILE__, __LINE__, Logger::INFO, __func__).getstream()
-#define LOG_DEBUG Logger(__FILE__, __LINE__, Logger::WARN).getstream()
-#define LOG_DEBUG Logger(__FILE__, __LINE__, Logger::ERROR).getstream()
-#define LOG_DEBUG Logger(__FILE__, __LINE__, Logger::FATAL).getstream()
+#define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).getstream()
+#define LOG_ERROR Logger(__FILE__, __LINE__, Logger::ERROR).getstream()
+#define LOG_FATAL Logger(__FILE__, __LINE__, Logger::FATAL).getstream()
 #define LOG_SYSERR Logger(__FILE__, __LINE__, false).gerstream()
 #define LOG_SYSFATAL Logger(__FILE__, __LINE__, false).gerstream()

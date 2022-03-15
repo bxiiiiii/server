@@ -15,7 +15,7 @@ class FixedBuffer {
     }
   }
 
-  const char* getdata const() { return data_; }
+  const char* getdata const { return data_; }
   int getlen() { return static_cast<int>(cur_ - data_); }
   void add(size_t len) { cur_ += len; }
   int avail() { return static_cast<int>(end() - cur_); }

@@ -1,4 +1,5 @@
 #include "LogStream.h"
+#include <string>
 
 const char digits[] = "9876543210123456789";
 const char* zero = digits + 9;
@@ -35,15 +36,39 @@ LogStream& LogStream::operator<<(long) {}
 LogStream& LogStream::operator<<(unsigned long) {}
 LogStream& LogStream::operator<<(long long) {}
 LogStream& LogStream::operator<<(unsigned long long) {}
-LogStream& LogStream::operator<<(const void*) {}
+LogStream& LogStream::operator<<(const void* p) 
+{
+  auto v = reinterpret_cast<uintptr_t>(p);
+  if(buffer_.avail() >= kMaxNumericSize){
+    char* buf = buffer_.current();
+    buf[0] = '0';
+    buf[1] = 'x';
+    size_t len = convertHex(buf + 2, v);
+    buffer_.add(len + 2);
+  }
+
+  return *this;
+}
 LogStream& LogStream::operator<<(float b) {}
 LogStream& LogStream::operator<<(double) {}
 LogStream& LogStream::operator<<(char b) {}
-LogStream& LogStream::operator<<(const char* str) {}
-LogStream& LogStream::operator<<(const unsigned char* str) {}
-LogStream& LogStream::operator<<(const std::string& b) {}
+LogStream& LogStream::operator<<(const char* b) 
+{
+    if(b){
+    buffer_.append(b, strlen(b));
+  } else {
+    buffer_.append("null", 6);
+  }
 
-void LogStream::append(const char* data, int len) {}
+  return *this;
+}
+LogStream& LogStream::operator<<(const unsigned char* str) {}
+LogStream& LogStream::operator<<(const std::string& b) 
+{
+
+}
+
+void LogStream::append(const char* data, int len) { buffer_.append(data, len); }
 const LogStream::Buffer& LogStream::getbuffer() const { return buffer_; }
 void LogStream::resetBuffer() { buffer_.reset(); }
 

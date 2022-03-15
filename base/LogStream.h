@@ -1,4 +1,4 @@
-#include <string>
+#include <string.h>
 
 const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000 * 1000;
@@ -6,23 +6,28 @@ const int kLargeBuffer = 4000 * 1000;
 template <int SIZE>
 class FixedBuffer {
  public:
-  FixedBuffer();
+  FixedBuffer() : cur_(data_){};
   ~FixedBuffer();
-  void append(const char* buf, size_t len);
+  void append(const char* buf, size_t len) {
+    if (implicit_cast<size_t>(avail()) > len) {
+      memcpy(cur_, buf, len);
+      cur_ += len;
+    }
+  }
 
-  const char* getdata();
-  int getlen();
-  void add(size_t len);
-  intt avail();
-  char* current();
+  const char* getdata const() { return data_; }
+  int getlen() { return static_cast<int>(cur_ - data_); }
+  void add(size_t len) { cur_ += len; }
+  int avail() { return static_cast<int>(end() - cur_); }
+  char* current() { return data_; };
 
-  void reset();
-  void bzero();
+  void reset() { cur_ = data_; };
+  void bzero() { memZero(data_, sizeof data_); };
 
  private:
   const char* end() const;
   char data_[SIZE];
-  char* cur;
+  char* cur_;
 };
 
 class LogStream {

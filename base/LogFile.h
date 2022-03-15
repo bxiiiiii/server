@@ -17,7 +17,7 @@ public:
 private:
     string getLogFileName(const string& filename, time_t *now);
 
-    string filename_;
+    const string filename_;
     time_t lastFlush_;
     time_t lastRoll_;
     time_t flustInterval_;

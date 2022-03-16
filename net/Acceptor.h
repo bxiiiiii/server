@@ -8,7 +8,7 @@ class Acceptor {
   Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr);
   ~Acceptor();
 
-  void setAcceptCallBack(AcceptCallback& callback);
+  void setAcceptCallBack( NewConnectionCallback& callback);
   void listen();
   bool listening();
 
@@ -20,5 +20,5 @@ class Acceptor {
   EventLoop* loop_;
   Channel acceptChannel;
   bool listenning;
-  AcceptCallback acceptcallback_;
+   NewConnectionCallback acceptcallback_;
 };

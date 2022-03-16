@@ -16,9 +16,10 @@ class TcpServer {
   void setMessageCallBack(const MessageCallBack& callback);
 
  private:
-  void newConnection(int sockfd, const struct sockaddr_in& addr);
-  typedef std::map<std::string, TcpConnection> ConnectionMap;
+  void newConnection(int sockfd, const struct sockaddr_in& peeraddr);
+  typedef std::map<std::string, TcpConnectionPtr> ConnectionMap;
   EventLoop* loop_;
+  const struct  sockaddr_in localaddr_;
   std::auto_ptr<Acceptor> acceptor_;
   ConnectionCallBack connectionCallBack_;
   MessageCallBack messageCallBack_;

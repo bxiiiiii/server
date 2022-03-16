@@ -4,9 +4,9 @@
 #include "Buffer.h"
 #include "Timestamp.h"
 
-typedef std::function<void(int socdfd)> ConnectionCallBack;
+typedef std::function<void(TcpConnectionPtr&)> ConnectionCallBack;
 typedef std::function<void(int sockfd, const struct sockaddr_in&)>
-    AcceptCallback;
+     NewConnectionCallback;
 typedef std::function<void()> EventCallBack;
 typedef std::function<void(const TcpConnectionPtr&, Buffer* buf, Timestamp)>
     MessageCallBack;

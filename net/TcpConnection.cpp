@@ -1,8 +1,25 @@
 #include "TcpConnection.h"
+#include "Channel.h"
 
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include <memory>
+
+TcpConnection::TcpConnection(EventLoop* loop, const std::string& name, int sockfd,
+                const sockaddr_in& localAddr, const sockaddr_in& peerAddr)
+                : loop_(loop),
+                  name_(name),
+                  state_(kConnecting),
+                  sockfd_(sockfd),
+                  channel_(new Channel(loop, sockfd)),
+                  localaddr_(localAddr),
+                  peeraddr_(peerAddr)
+                  {
+                    channel_->setReadCallBack(std::bind(&TcpConnection::handleRead, this));
+                    channel_->setWriteCallBack(std::bind(&TcpConnection::handleWrite, this));
+                  }
+
 
 void TcpConnection::setMessageCallBack(MessageCallBack& callback) {
   mescallback_ = callback;

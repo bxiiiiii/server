@@ -20,8 +20,8 @@ Acceptor::~Acceptor()
     acceptChannel.remove();
 }
 
-void Acceptor::setAcceptCallBack(AcceptCallback& callback) {
-  acceptcallback_ = callback;
+void Acceptor::setAcceptCallBack( NewConnectionCallback& callback) {
+  acceptcallback_ = std::move(callback);
 }
 
 void Acceptor::listen() {

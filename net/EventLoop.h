@@ -3,6 +3,7 @@
 #include "CallBacks.h"
 
 // class Channel;
+typedef std::vector<Channel*> ChannelList;
 class Poller;
 class EventLoop
 {

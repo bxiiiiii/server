@@ -44,9 +44,11 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 
   EventLoop* loop_;
   State state_;
+  const std::string name_;
+  int sockfd_;
   std::auto_ptr<Channel> channel_;
   struct sockaddr_in localaddr_;
-  struct sockaddr_in peeraddr;
+  struct sockaddr_in peeraddr_;
   MessageCallBack mescallback_;
   ConnectionCallBack concallback_;
   CloseCallBack closecallback_;

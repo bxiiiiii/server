@@ -33,7 +33,10 @@ void EventLoop::loop() {
 void EventLoop::quit() { quit_ = true; }
 
 void EventLoop::assertInLoopThread() {}
-bool EventLoop::isInLoopThread() {}
+bool EventLoop::isInLoopThread() 
+{
+  return true;
+}
 
 void EventLoop::updateChannel(Channel* channel) {
   poller_->updateChannel(channel);

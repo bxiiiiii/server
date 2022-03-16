@@ -2,6 +2,8 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include <thread>
+#include <functional>
 
 #include "LogStream.h"
 
@@ -16,7 +18,9 @@ class AsyncLogging {
   void stop();
 
  private:
-  void threadFunc();
+ void threadFunc();
+//  def std::function<void()> ThreadFunc;
+  
   typedef FixedBuffer<kLargeBuffer> Buffer;
   typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
   typedef std::unique_ptr<Buffer> BufferPtr;
@@ -27,6 +31,8 @@ class AsyncLogging {
   std::string filename_;
   std::mutex mutex_;
   std::condition_variable cond_;
+  std::thread thread_;
+  // ThreadFunc threadfunc_;
   BufferPtr currentBuffer_;
   BufferPtr nextBuffer_;
   BufferVector buffers_;

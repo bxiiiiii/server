@@ -31,6 +31,13 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   void send(Buffer* message);
   void shutdown();
 
+  void startRead();
+  void stopRead();
+  bool isReading();
+
+  void connectEstablished();
+  void connectDestroyed();
+
  private:
   enum State { kConnecting, kConnected, kDisconnecting, kDisconnected };
   void setState(State state) { state_ = state; }
@@ -39,11 +46,14 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   void handleClose();
   void handleError();
 
-  void sendInLoop(const std::string& message, size_t len);
+  void sendInLoop(const std::string& message);
+  void startReadInLoop();
+  void stopReadInLoop();
   void shutdownInLoop();
 
   EventLoop* loop_;
   State state_;
+  bool reading_;
   const std::string name_;
   int sockfd_;
   std::auto_ptr<Channel> channel_;

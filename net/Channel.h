@@ -7,7 +7,7 @@ class Channel {
   Channel(int fd, EventLoop* loop);
   ~Channel();
 
-  void setReadCallBack(EventCallBack func);
+  void setReadCallBack(ReadEventCallBack func);
   void setWriteCallBack(EventCallBack func);
   void setCloseCallBack(EventCallBack func);
   void seterrorCallBack(EventCallBack func);
@@ -21,6 +21,7 @@ class Channel {
 
   void enableReading();
   void enableWriting();
+  void disableReading();
   void disableWrting();
   void disableAll();
 
@@ -48,7 +49,8 @@ class Channel {
   bool addedToLoop_;
   bool eventHanding_;
 
-  EventCallBack readCallBack;
+  ReadEventCallBack readCallBack;
   EventCallBack writeCallBack;
   EventCallBack errorCallBack;
+  EventCallBack closeCallBack;
 };

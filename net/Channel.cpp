@@ -16,11 +16,13 @@ Channel::Channel(int fd, EventLoop* loop)
       addedToLoop_(false),
       eventHanding_(false) {}
 
-void Channel::setReadCallBack(EventCallBack func) { readCallBack = func; }
+void Channel::setReadCallBack(ReadEventCallBack func) { readCallBack = func; }
 
 void Channel::setWriteCallBack(EventCallBack func) { writeCallBack = func; }
 
 void Channel::seterrorCallBack(EventCallBack func) { errorCallBack = func; }
+
+void Channel::setCloseCallBack(EventCallBack func) { closeCallBack = func; }
 
 void Channel::setRevent(int revent) { revent_ = revent; }
 
@@ -44,8 +46,13 @@ void Channel::enableWriting() {
   update();
 }
 
+void Channel::disableReading() {
+  event_ &= ~kReadEvent;
+  update();
+}
+
 void Channel::disableWrting() {
-  event_ &= ~kNoneEvent;
+  event_ &= ~kWriteEvent;
   update();
 }
 
@@ -60,9 +67,9 @@ bool Channel::Is_Writing() { return event_ & kWriteEvent; }
 
 bool Channel::Is_Reading() { return event_ & kReadEvent; }
 
-void Channel::handleEvent() {
+void Channel::handleEvent(Timestamp receivetime) {
   if (revent_ & POLLIN) {
-    if (readCallBack) readCallBack();
+    if (readCallBack) readCallBack(receivetime);
   }
   if (revent_ & POLLOUT) {
     if (writeCallBack) writeCallBack();

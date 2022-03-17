@@ -1,3 +1,5 @@
+#ifndef NET_TCPCONNECTION_H
+#define NET_TCPCONNECTION_H
 #include <arpa/inet.h>
 
 #include <memory>
@@ -65,3 +67,5 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   Buffer inputBuffer_;
   Buffer outputBuffer_;
 };
+
+#endif

@@ -1,6 +1,7 @@
 #include "Acceptor.h"
 
 #include "Socket.h"
+#include "EventLoop.h"
 
 Acceptor::Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr)
     : loop_(loop),

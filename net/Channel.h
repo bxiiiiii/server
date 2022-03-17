@@ -1,4 +1,5 @@
-// #include "EventLoop.h"
+#ifndef NET_CHANNEL_H
+#define NET_CHANNEL_H
 #include "CallBacks.h"
 
 class EventLoop;
@@ -29,7 +30,7 @@ class Channel {
   bool Is_Reading();
   bool Is_Writing();
 
-  void handleEvent();
+  void handleEvent(Timestamp receivetime);
 
   void remove();
 
@@ -54,3 +55,5 @@ class Channel {
   EventCallBack errorCallBack;
   EventCallBack closeCallBack;
 };
+
+#endif

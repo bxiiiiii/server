@@ -1,11 +1,14 @@
 #include "TcpServer.h"
 
+#include "Acceptor.h"
+#include "EventLoop.h"
+
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 
 TcpServer::TcpServer(EventLoop* loop, const sockaddr_in& addr)
-    : loop_(loop), acceptor_(new Acceptor(loop, addr)) {
+    : loop_(loop), acceptor_(new Acceptor(loop, addr)), localaddr_(addr) {
   acceptor_->setAcceptCallBack(
       std::bind(&TcpServer::newConnection, this, _1, _2));
 }
@@ -30,17 +33,14 @@ void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   con->setConnectionCallBack(connectionCallBack_);
   con->setMessageCallBack(messageCallBack_);
 }
-void TcpServer::removeConnection(const TcpConnectionPtr& conn)
-{
+void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
   loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
-  void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
-  {
-    size_t n = connections_.erase(conn->getname());
-    EventLoop* loop = conn->getLoop();
-    loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
-  }
-  
+void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
+  size_t n = connections_.erase(conn->getname());
+  EventLoop* loop = conn->getLoop();
+  loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
+}
 
-  EventLoop* TcpServer::getloop(){ return loop_;}
-  const std::string& TcpServer::getname() { return name_; }
+EventLoop* TcpServer::getloop() { return loop_; }
+const std::string& TcpServer::getname() { return name_; }

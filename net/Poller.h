@@ -1,3 +1,5 @@
+#ifndef NET_POLLER_H
+#define NET_POLLER_H
 #include <poll.h>
 
 #include <map>
@@ -23,3 +25,5 @@ class Poller {
   std::vector<struct pollfd> PollFdList;
   std::map<int, Channel*> ChannelMap;
 };
+
+#endif

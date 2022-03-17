@@ -10,7 +10,7 @@ public:
             int maxCount = 1024);
     ~LogFile();
 
-    void append(char* log, int len);
+    void append(const char* log, int len);
     void flush();
     bool rollFile();
 

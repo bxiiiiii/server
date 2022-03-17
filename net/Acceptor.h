@@ -1,8 +1,11 @@
+#ifndef NET_ACCEPTOR_H
+#define NET_ACCEPTOR_H
 #include <arpa/inet.h>
 
 #include "CallBacks.h"
-#include "EventLoop.h"
+#include "Channel.h"
 
+class EventLoop;
 class Acceptor {
  public:
   Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr);
@@ -22,3 +25,5 @@ class Acceptor {
   bool listenning;
    NewConnectionCallback acceptcallback_;
 };
+
+#endif

@@ -1,9 +1,6 @@
 #include "TcpConnection.h"
 
-#include <arpa/inet.h>
 #include <unistd.h>
-
-#include <memory>
 
 #include "Channel.h"
 

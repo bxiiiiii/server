@@ -1,3 +1,5 @@
+#ifndef NET_BUFFER_H
+#define NET_BUFFER_H
 #include <vector>
 
 class Buffer
@@ -8,14 +10,20 @@ public:
 
     Buffer(int initialSize = kInitialSize);
 
+    void swap(Buffer& rhs);
+
     int readableBytes();
     int writableBytes();
     int prependableBytes();
 
     char* begin();
     const char* peek();
+
     void retrieve(size_t n);
     void retrieveAll();
+    std::string retrieveAllAsString();
+    std::string retrieveAsString(size_t len);
+
     void append(const char* data, int len);
     void ensureWritableBytes(size_t len);
     char* beginWrite();
@@ -29,3 +37,5 @@ private:
     int readIndex_;
     int writeIndex_;
 };
+
+#endif

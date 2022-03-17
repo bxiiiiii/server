@@ -1,10 +1,12 @@
+#ifndef NET_EVENTLOOP_H
+#define NET_EVENTLOOP_H
 #include <iostream>
-#include "Channel.h"
 #include "CallBacks.h"
 
 // class Channel;
 typedef std::vector<Channel*> ChannelList;
 class Poller;
+class Channel;
 class EventLoop
 {
 public:
@@ -32,3 +34,5 @@ private:
     std::auto_ptr<Poller> poller_;
     ChannelList activechannels_;
 };
+
+#endif

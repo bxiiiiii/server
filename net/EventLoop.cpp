@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "Poller.h"
+#include "Channel.h"
 
 EventLoop::EventLoop() 
 : looping_(false),

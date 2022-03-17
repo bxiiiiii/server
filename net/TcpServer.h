@@ -1,9 +1,11 @@
+#ifndef NET_TCPSERVER_H
+#define NET_TCPSERVER_H
+
 #include <map>
 
-#include "Acceptor.h"
-#include "CallBacks.h"
-#include "EventLoop.h"
 #include "TcpConnection.h"
+
+class Acceptor;
 
 class TcpServer {
  public:
@@ -31,3 +33,5 @@ class TcpServer {
   MessageCallBack messageCallBack_;
   ConnectionMap connections_;
 };
+
+#endif

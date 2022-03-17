@@ -1,3 +1,5 @@
+#ifndef NET_SOCKET_H
+#define NET_SOCKET_H
 #include <arpa/inet.h>
 
 #define MAX_LISTEN 1024
@@ -11,3 +13,5 @@ int close(int sockfd);
 int accept(int sockfd, const struct sockaddr_in* listenAddr);
 void filladdr(struct sockaddr_in* addr);
 }
+
+#endif

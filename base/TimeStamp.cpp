@@ -5,6 +5,10 @@
     Timestamp::Timestamp()
     :microSecondsSinceEpoch(0)
     {
+    }
+    Timestamp::Timestamp(int64_t microSeconds)
+    :microSecondsSinceEpoch(microSeconds)
+    {
 
     }
     Timestamp Timestamp::now()

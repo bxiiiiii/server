@@ -8,7 +8,7 @@ class Acceptor {
   Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr);
   ~Acceptor();
 
-  void setAcceptCallBack( NewConnectionCallback& callback);
+  void setAcceptCallBack(const NewConnectionCallback& callback);
   void listen();
   bool listening();
 

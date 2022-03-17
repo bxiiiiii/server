@@ -30,3 +30,17 @@ void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   con->setConnectionCallBack(connectionCallBack_);
   con->setMessageCallBack(messageCallBack_);
 }
+void TcpServer::removeConnection(const TcpConnectionPtr& conn)
+{
+  loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
+}
+  void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
+  {
+    size_t n = connections_.erase(conn->getname());
+    EventLoop* loop = conn->getLoop();
+    loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
+  }
+  
+
+  EventLoop* TcpServer::getloop(){ return loop_;}
+  const std::string& TcpServer::getname() { return name_; }

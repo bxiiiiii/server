@@ -3,6 +3,10 @@
 class Timestamp
 {
 public:
-    Timestamp(int time);
+    Timestamp();
     static Timestamp now();
+
+    static const int kMicroSecondsPerSecond = 1000 * 1000;
+private:
+    int64_t microSecondsSinceEpoch;
 };

@@ -12,6 +12,7 @@ EventLoop::EventLoop()
 : looping_(false),
    threadId(syscall(SYS_gettid)),
    quit_(false),
+   poller_(new Poller(this)),
    eventHandling_(false) {}
 
 EventLoop::~EventLoop() {}
@@ -22,9 +23,9 @@ void EventLoop::loop() {
 
   while (!quit_) {
     activechannels_.clear();
-    poller_->poll(0, &activechannels_);
+    ret_ = poller_->poll(0, &activechannels_);
     for (auto event : activechannels_) {
-      event->handleEvent();
+      event->handleEvent(ret_);
     }
   }
 

@@ -31,7 +31,7 @@ void Acceptor::listen() {
   acceptChannel.enableReading();
 }
 
-bool Acceptor::listening() { return listening; }
+bool Acceptor::listening() { return listenning; }
 
 void Acceptor::handleRead() {
   int cfd;

@@ -4,9 +4,10 @@
 #include "CallBacks.h"
 
 // class Channel;
-typedef std::vector<Channel*> ChannelList;
 class Poller;
 class Channel;
+typedef std::vector<Channel*> ChannelList;
+
 class EventLoop
 {
 public:
@@ -31,7 +32,8 @@ private:
     bool quit_;
     bool eventHandling_;
     const pid_t threadId;
-    std::auto_ptr<Poller> poller_;
+    Timestamp ret_;
+    std::unique_ptr<Poller> poller_;
     ChannelList activechannels_;
 };
 

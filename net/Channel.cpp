@@ -16,6 +16,8 @@ Channel::Channel(int fd, EventLoop* loop)
       addedToLoop_(false),
       eventHanding_(false) {}
 
+Channel::~Channel() = default;
+
 void Channel::setReadCallBack(ReadEventCallBack func) { readCallBack = func; }
 
 void Channel::setWriteCallBack(EventCallBack func) { writeCallBack = func; }
@@ -76,8 +78,7 @@ void Channel::handleEvent(Timestamp receivetime) {
   }
 }
 
-void Channel::update() 
-{
+void Channel::update() {
   addedToLoop_ = true;
   loop_->updateChannel(this);
 }

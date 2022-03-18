@@ -4,12 +4,10 @@
 
 #include <cstring>
 
-using namespace socketopts;
-
-int createNoneblockingOrDie() {
+int socketopts::createNoneblockingOrDie() {
   int sfd;
   sfd =
-      socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, IPPROTO_TCP);
+      ::socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, IPPROTO_TCP);
   if (sfd < 0) {
     // TODO:log
   }
@@ -17,27 +15,30 @@ int createNoneblockingOrDie() {
   return sfd;
 }
 
-int bindOrDie(int sockfd, const struct sockaddr_in* addr) {
-  if (bind(sockfd, reinterpret_cast<const struct sockaddr*>(addr),
+void socketopts::bindOrDie(int sockfd, const struct sockaddr_in* addr) {
+  if (::bind(sockfd, reinterpret_cast<const struct sockaddr*>(addr),
            sizeof(struct sockaddr_in)) < 0) {
     // TODO:log
   }
 }
 
-int listenOrDie(int sockfd) {
-  if (listen(sockfd, MAX_LISTEN) < 0) {
+void socketopts::listenOrDie(int sockfd) {
+  if (::listen(sockfd, MAX_LISTEN) < 0) {
     // TODO:log
   }
 }
 
-int close(int sockfd);
+void socketopts::close(int sockfd)
+{
+  close(sockfd);
+}
 
-int accept(int sockfd, struct sockaddr_in* listenAddr) {
+int socketopts::accept(int sockfd, const struct sockaddr_in* listenAddr) {
   int cfd;
   socklen_t clen;
   struct sockaddr_in caddr;
 
-  cfd = accept4(sockfd, (struct sockaddr*)&caddr, &clen,
+  cfd = ::accept4(sockfd, (struct sockaddr*)&caddr, &clen,
                 SOCK_CLOEXEC | SOCK_NONBLOCK);
 
   if (cfd < 0) {
@@ -57,7 +58,7 @@ int accept(int sockfd, struct sockaddr_in* listenAddr) {
   return cfd;
 }
 
-void filladdr(struct sockaddr_in* addr) {
+void socketopts::filladdr(struct sockaddr_in* addr) {
   memset(addr, 0, sizeof(struct sockaddr_in));
   addr->sin_family = AF_INET;
   addr->sin_port = htons(9999);

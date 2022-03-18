@@ -15,14 +15,14 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 
   EventLoop* getLoop();
   const std::string& getname();
-  const sockaddr_in getlocalAddr();
-  const sockaddr_in getpeerAddr();
+  const sockaddr_in& getlocalAddr();
+  const sockaddr_in& getpeerAddr();
   Buffer* getinputbuffer();
   Buffer* getoutputbuffer();
 
   bool connected();
   bool disconnected();
-  void connectEstavlished();
+  void connectEstablished();
   void connectDestroyed();
 
   void setMessageCallBack(MessageCallBack& callback);
@@ -36,9 +36,6 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   void startRead();
   void stopRead();
   bool isReading();
-
-  void connectEstablished();
-  void connectDestroyed();
 
  private:
   enum State { kConnecting, kConnected, kDisconnecting, kDisconnected };
@@ -58,7 +55,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   bool reading_;
   const std::string name_;
   int sockfd_;
-  std::auto_ptr<Channel> channel_;
+  std::unique_ptr<Channel> channel_;
   struct sockaddr_in localaddr_;
   struct sockaddr_in peeraddr_;
   MessageCallBack mescallback_;

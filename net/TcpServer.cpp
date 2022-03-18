@@ -13,8 +13,17 @@ TcpServer::TcpServer(EventLoop* loop, const sockaddr_in& addr)
       std::bind(&TcpServer::newConnection, this, _1, _2));
 }
 
+TcpServer::~TcpServer() {
+  for (auto& item : connections_) {
+    TcpConnectionPtr conn(item.second);
+    item.second.reset();
+    conn->getLoop()->runInLoop(
+        std::bind(&TcpConnection::connectDestroyed, conn));
+  }
+}
+
 void TcpServer::start() {
-  loop_->runInLoop(std::bind(&Acceptor::listen, acceptor_));
+  loop_->runInLoop(std::bind(&Acceptor::listen, acceptor_.get()));
 }
 void TcpServer::setConnectionCallBack(const ConnectionCallBack& callback) {
   connectionCallBack_ = callback;

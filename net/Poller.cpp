@@ -1,6 +1,9 @@
 #include "Poller.h"
+#include "Channel.h"
 
 Poller::Poller(EventLoop* loop) : loop_(loop) {}
+
+  Poller::~Poller() = default;
 
 Timestamp Poller::poll(int time, ChannelList* activeChannels) {
   int numEvents = ::poll(PollFdList.data(), PollFdList.size() + 1, time);

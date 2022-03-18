@@ -7,9 +7,9 @@
 
 namespace socketopts {
 int createNoneblockingOrDie();
-int bindOrDie(int sockfd, const struct sockaddr_in* addr);
-int listenOrDie(int sockfd);
-int close(int sockfd);
+void bindOrDie(int sockfd, const struct sockaddr_in* addr);
+void listenOrDie(int sockfd);
+void close(int sockfd);
 int accept(int sockfd, const struct sockaddr_in* listenAddr);
 void filladdr(struct sockaddr_in* addr);
 }

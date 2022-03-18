@@ -5,9 +5,11 @@
 #include <map>
 #include <vector>
 
-#include "Channel.h"
-#include "Timestamp.h"
-
+// #include "Channel.h"
+// #include "Timestamp.h"
+class Channel;
+class Timestamp;
+class EventLoop;
 typedef std::vector<Channel*> ChannelList;
 class Poller {
  public:

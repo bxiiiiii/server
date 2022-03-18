@@ -5,11 +5,6 @@
 
 #include <string>
 
-Buffer::Buffer(int initialSize = kInitialSize)
-    : buffer_(kPrepend + initialSize),
-      readIndex_(kPrepend),
-      writeIndex_(kPrepend) {}
-
 void Buffer::swap(Buffer& rhs) {
   buffer_.swap(rhs.buffer_);
   std::swap(readIndex_, rhs.readIndex_);

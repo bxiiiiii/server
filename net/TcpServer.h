@@ -28,7 +28,7 @@ class TcpServer {
   EventLoop* loop_;
   const std::string name_;
   const struct sockaddr_in localaddr_;
-  std::auto_ptr<Acceptor> acceptor_;
+  std::unique_ptr<Acceptor> acceptor_;
   ConnectionCallBack connectionCallBack_;
   MessageCallBack messageCallBack_;
   ConnectionMap connections_;

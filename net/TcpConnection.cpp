@@ -46,13 +46,13 @@ void TcpConnection::connectDestroyed() {
   channel_->remove();
 }
 
-void TcpConnection::setMessageCallBack(MessageCallBack& callback) {
+void TcpConnection::setMessageCallBack(const MessageCallBack& callback) {
   mescallback_ = callback;
 }
-void TcpConnection::setConnectionCallBack(ConnectionCallBack& callback) {
+void TcpConnection::setConnectionCallBack(const ConnectionCallBack& callback) {
   concallback_ = callback;
 }
-  void TcpConnection::setCloseCallBack(CloseCallBack& callback)
+  void TcpConnection::setCloseCallBack(const CloseCallBack& callback)
   {
     closecallback_ = callback;
   }

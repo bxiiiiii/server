@@ -25,9 +25,9 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   void connectEstablished();
   void connectDestroyed();
 
-  void setMessageCallBack(MessageCallBack& callback);
-  void setConnectionCallBack(ConnectionCallBack& callback);
-  void setCloseCallBack(CloseCallBack& callback);
+  void setMessageCallBack(const MessageCallBack& callback);
+  void setConnectionCallBack(const ConnectionCallBack& callback);
+  void setCloseCallBack(const CloseCallBack& callback);
 
   void send(const std::string& message);
   void send(Buffer* message);

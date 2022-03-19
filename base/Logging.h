@@ -1,3 +1,6 @@
+#ifndef BASE_LOGGING_H
+#define BASE_LOGGING_H
+
 #include "LogStream.h"
 #include "Timestamp.h"
 
@@ -85,3 +88,5 @@ inline Logger::LogLevel Logger::getloglevel() { return g_logLevel; }
 #define LOG_FATAL Logger(__FILE__, __LINE__, Logger::FATAL).getstream()
 #define LOG_SYSERR Logger(__FILE__, __LINE__, false).gerstream()
 #define LOG_SYSFATAL Logger(__FILE__, __LINE__, false).gerstream()
+
+#endif

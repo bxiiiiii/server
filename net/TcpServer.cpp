@@ -41,6 +41,8 @@ void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   connections_[conName] = con;
   con->setConnectionCallBack(connectionCallBack_);
   con->setMessageCallBack(messageCallBack_);
+  con->setCloseCallBack(std::bind(&TcpServer::removeConnection, this, _1));
+  loop_->runInLoop(std::bind(&TcpConnection::connectEstablished, con));
 }
 void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
   loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));

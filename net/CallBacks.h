@@ -6,6 +6,7 @@
 #include "../base/Timestamp.h"
 #include "Buffer.h"
 class TcpConnection;
+class EventLoop;
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef std::function<void(int sockfd, const struct sockaddr_in&)>
     NewConnectionCallback;
@@ -16,5 +17,7 @@ typedef std::function<void(const TcpConnectionPtr&)> ConnectionCallBack;
 typedef std::function<void(const TcpConnectionPtr&, Buffer*, Timestamp)>
     MessageCallBack;
 typedef std::function<void()> Functor;
+
+typedef std::function<void(EventLoop*)> ThreadInitCallback;
 
 #endif

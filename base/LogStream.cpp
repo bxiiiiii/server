@@ -1,5 +1,7 @@
 #include "LogStream.h"
 #include <string>
+#include <algorithm>
+#include <cstring>
 
 const char digits[] = "9876543210123456789";
 const char* zero = digits + 9;
@@ -10,10 +12,10 @@ size_t convert(char buf[], T value) {
   T i = value;
   char* p = buf;
   do {
-    in lsd = static_cast<int>(i % 10);
+    int lsd = static_cast<int>(i % 10);
     i /= 10;
     *p++ = zero[lsd];
-  } while (i != 0)
+  } while (i != 0);
 
       if (value < 0) {
     *p++ = '-';
@@ -24,18 +26,59 @@ size_t convert(char buf[], T value) {
   return p - buf;
 }
 
+size_t convertHex(char buf[], uintptr_t value)
+{
+  uintptr_t i = value;
+  char *p = buf;
+
+  do{
+    int isd = static_cast<int> (i % 16);
+    i /= 16;
+    *p++ = digitsHex[isd];
+  }while(i != 0);
+
+  *p = '\0';
+  std::reverse(buf, p);
+
+  return p - buf;
+}
+
 LogStream& LogStream::operator<<(bool b) {
   buffer_.append(b ? "1" : "0", 1);
   return *this;
 }
-LogStream& LogStream::operator<<(short) {}
-LogStream& LogStream::operator<<(unsigned short) {}
-LogStream& LogStream::operator<<(int) {}
-LogStream& LogStream::operator<<(unsigned int) {}
-LogStream& LogStream::operator<<(long) {}
-LogStream& LogStream::operator<<(unsigned long) {}
-LogStream& LogStream::operator<<(long long) {}
-LogStream& LogStream::operator<<(unsigned long long) {}
+LogStream& LogStream::operator<<(short v) {
+  *this << static_cast<int>(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(unsigned short v) {
+  *this << static_cast<unsigned int>(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(int v) {
+  formatInteger(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(unsigned int v) {
+  formatInteger(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(long v) {
+  formatInteger(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(unsigned long v) {
+  formatInteger(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(long long v) {
+  formatInteger(v);
+  return *this;
+}
+LogStream& LogStream::operator<<(unsigned long long v) {
+  formatInteger(v);
+  return *this;
+}
 LogStream& LogStream::operator<<(const void* p) 
 {
   auto v = reinterpret_cast<uintptr_t>(p);
@@ -49,9 +92,21 @@ LogStream& LogStream::operator<<(const void* p)
 
   return *this;
 }
-LogStream& LogStream::operator<<(float b) {}
-LogStream& LogStream::operator<<(double) {}
-LogStream& LogStream::operator<<(char b) {}
+LogStream& LogStream::operator<<(float b) {
+  *this <<static_cast<double>(b);
+  return *this;
+}
+LogStream& LogStream::operator<<(double v) {
+  if(buffer_.avail() >= kMaxNumericSize){
+    int len = snprintf(buffer_.current(), kMaxNumericSize, "%.12g", v);
+    buffer_.add(len);
+  }
+  return *this;
+}
+LogStream& LogStream::operator<<(char b) {
+  buffer_.append(&b, 1);
+  return *this;
+}
 LogStream& LogStream::operator<<(const char* b) 
 {
     if(b){
@@ -62,10 +117,13 @@ LogStream& LogStream::operator<<(const char* b)
 
   return *this;
 }
-LogStream& LogStream::operator<<(const unsigned char* str) {}
+LogStream& LogStream::operator<<(const unsigned char* str) {
+  return operator<<(reinterpret_cast<const char*>(str));
+}
 LogStream& LogStream::operator<<(const std::string& b) 
 {
-
+  buffer_.append(b.c_str(), b.size());
+  return *this;
 }
 
 void LogStream::append(const char* data, int len) { buffer_.append(data, len); }

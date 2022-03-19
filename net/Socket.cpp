@@ -7,7 +7,8 @@
 int socketopts::createNoneblockingOrDie() {
   int sfd;
   sfd =
-      ::socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, IPPROTO_TCP);
+      // ::socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, IPPROTO_TCP);
+      socket(AF_INET, SOCK_STREAM, 0);
   if (sfd < 0) {
     // TODO:log
   }
@@ -58,9 +59,9 @@ int socketopts::accept(int sockfd, const struct sockaddr_in* listenAddr) {
   return cfd;
 }
 
-void socketopts::filladdr(struct sockaddr_in* addr) {
+void socketopts::filladdr(struct sockaddr_in* addr, int port) {
   memset(addr, 0, sizeof(struct sockaddr_in));
   addr->sin_family = AF_INET;
-  addr->sin_port = htons(9999);
+  addr->sin_port = htons(port);
   addr->sin_addr.s_addr = htonl(INADDR_ANY);
 }

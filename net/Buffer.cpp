@@ -2,8 +2,10 @@
 
 #include <errno.h>
 #include <sys/uio.h>
+#include <unistd.h>
 
 #include <string>
+#include "../base/Logging.h"
 
 void Buffer::swap(Buffer& rhs) {
   buffer_.swap(rhs.buffer_);
@@ -76,8 +78,10 @@ int Buffer::readFd(int fd, int* Errno) {
   vec[0].iov_base = begin() + writeIndex_;
   vec[0].iov_len = writable;
   vec[1].iov_base = extrabuf;
-  vec[1].iov_len = sizeof(extrabuf);
-  int n = readv(fd, vec, 2);
+  vec[1].iov_len = sizeof extrabuf;
+  const int iovcnt = (writable < sizeof extrabuf) ? 2 : 1;
+  size_t n = readv(fd, vec, iovcnt);
+  LOG_DEBUG << n;
   if (n < 0) {
     *Errno = errno;
   } else if (n <= writable) {
@@ -86,4 +90,6 @@ int Buffer::readFd(int fd, int* Errno) {
     writeIndex_ = buffer_.size();
     append(extrabuf, n - writable);
   }
+  //int n = read(fd, begin() + writeIndex_, writableBytes());
+  return n;
 }

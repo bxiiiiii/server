@@ -8,7 +8,7 @@ template <int SIZE>
 class FixedBuffer {
  public:
   FixedBuffer() : cur_(data_){};
-  ~FixedBuffer();
+  ~FixedBuffer() = default;
   void append(const char* buf, size_t len) {
     if (static_cast<size_t>(avail()) > len) {
       memcpy(cur_, buf, len);
@@ -17,16 +17,16 @@ class FixedBuffer {
   }
 
   const char* getdata() const { return data_; }
-  int getlen() { return static_cast<int>(cur_ - data_); }
+  int getlen() const { return static_cast<int>(cur_ - data_); }
   void add(size_t len) { cur_ += len; }
   int avail() { return static_cast<int>(end() - cur_); }
-  char* current() { return data_; };
+  char* current() { return cur_; };
 
   void reset() { cur_ = data_; };
   void bzero() { memZero(data_, sizeof data_); };
 
  private:
-  const char* end() const;
+  const char* end() const { return data_ + sizeof data_; };
   char data_[SIZE];
   char* cur_;
 };

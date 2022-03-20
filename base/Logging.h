@@ -45,7 +45,7 @@ class Logger {
   Logger(SourceFile file, int line, bool toAbort);
   ~Logger();
 
-  LogStream& getstream() { return impl_.stream_; }
+  LogStream& getstream();
 
   static LogLevel getloglevel();
   static void setLogLevel(LogLevel level);
@@ -61,6 +61,8 @@ class Logger {
     typedef Logger::LogLevel LogLevel;
     Impl(LogLevel level, int old_error, const SourceFile& file, int line);
     void finish();
+    void FormatAndPrintTime(Timestamp time);
+
 
     Timestamp time_;
     LogStream stream_;

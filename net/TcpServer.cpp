@@ -2,6 +2,7 @@
 
 #include "Acceptor.h"
 #include "EventLoop.h"
+#include "../base/Logging.h"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -34,6 +35,7 @@ void TcpServer::setMessageCallBack(const MessageCallBack& callback) {
 }
 
 void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
+  LOG_DEBUG << " ";
   std::string conName = "gg";
 
   TcpConnectionPtr con(
@@ -49,8 +51,10 @@ void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
 }
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
   size_t n = connections_.erase(conn->getname());
+  LOG_DEBUG << n;
   EventLoop* loop = conn->getLoop();
-  loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
+  //loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
+  loop->runInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
 }
 
 EventLoop* TcpServer::getloop() { return loop_; }

@@ -7,6 +7,7 @@
 
 #include "Poller.h"
 #include "Channel.h"
+#include "../base/Logging.h"
 
 EventLoop::EventLoop() 
 : looping_(false),
@@ -23,10 +24,14 @@ void EventLoop::loop() {
 
   while (!quit_) {
     activechannels_.clear();
-    ret_ = poller_->poll(0, &activechannels_);
+    ret_ = poller_->poll(-1, &activechannels_);
+    sleep(2);
+    eventHandling_ = true;
     for (auto event : activechannels_) {
+      LOG_DEBUG << event->getFd();
       event->handleEvent(ret_);
     }
+    eventHandling_ = false;
   }
 
   looping_ = false;

@@ -2,6 +2,7 @@
 
 #include "EventLoop.h"
 #include "Poller.h"
+#include "../base/Logging.h"
 
 const int Channel::kNoneEvent = 0;
 const int Channel::kReadEvent = POLLIN;
@@ -70,8 +71,15 @@ bool Channel::Is_Writing() { return event_ & kWriteEvent; }
 bool Channel::Is_Reading() { return event_ & kReadEvent; }
 
 void Channel::handleEvent(Timestamp receivetime) {
+  eventHanding_ = true;
+    if ((revent_ & POLLHUP) && !(revent_ & POLLIN)){
+    if (closeCallBack) closeCallBack();
+  }
   if (revent_ & POLLIN) {
-    if (readCallBack) readCallBack(receivetime);
+    if (readCallBack) {
+      readCallBack(receivetime);
+    }
+    // readCallBack(receivetime);
   }
   if (revent_ & POLLOUT) {
     if (writeCallBack) writeCallBack();

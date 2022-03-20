@@ -1,6 +1,8 @@
 #include "Logging.h"
 
-Logger::LogLevel initLogLevel() { return Logger::INFO; }
+#include <chrono>
+
+Logger::LogLevel initLogLevel() { return Logger::DEBUG; }
 Logger::LogLevel g_logLevel = initLogLevel();
 
 const char* LogLevelName[Logger::NUM_LOG_LEVELS] = {"TRACE", "DEBUF", "INFO",
@@ -20,8 +22,8 @@ void defaultOutput(const char* msg, int len) {
 
 void defaultFlush() { fflush(stdout); }
 
-Logger::OutputFunc g_output;
-Logger::FlushFunc g_flush;
+Logger::OutputFunc g_output = defaultOutput;
+Logger::FlushFunc g_flush = defaultFlush;
 
 Logger::Logger(SourceFile file, int line) : impl_(INFO, 0, file, line) {}
 Logger::Logger(SourceFile file, int line, LogLevel level)
@@ -44,7 +46,6 @@ Logger::~Logger() {
 }
 
 LogStream& Logger::getstream() { return impl_.stream_; }
-Logger::LogLevel Logger::getloglevel() { return g_logLevel; }
 
 void Logger::setLogLevel(LogLevel level) { g_logLevel = level; }
 void Logger::setOutput(OutputFunc func) { g_output = func; }
@@ -56,8 +57,22 @@ Logger::Impl::Impl(LogLevel level, int old_error, const SourceFile& file,
       stream_(),
       level_(level),
       line_(line),
-      filename_(file) {}
+      filename_(file) {
+        FormatAndPrintTime(time_);
+      }
 
 void Logger::Impl::finish() {
-  stream_ << "-" << filename_ << ":" << line_ << '\n';
+  stream_ << "-" << filename_.data_ << ":" << line_ << '\n';
+}
+
+void Logger::Impl::FormatAndPrintTime(Timestamp time) {
+  int64_t milli = time.getms()/1000 + (int64_t)8 * 60 * 60 * 1000;
+  auto mTime = std::chrono::milliseconds(milli);
+  auto tp = std::chrono::time_point<std::chrono::system_clock,
+                                    std::chrono::milliseconds>(mTime);
+  auto tt = std::chrono::system_clock::to_time_t(tp);
+  std::tm* now = std::gmtime(&tt);
+  stream_ << now->tm_year + 1900 << '-' << now->tm_mon + 1 << '-'
+          << now->tm_mday << ' ' << now->tm_hour << ':' << now->tm_min << ':'
+          << now->tm_sec << ' ';
 }

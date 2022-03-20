@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "Channel.h"
+#include "../base/Logging.h"
 
 TcpConnection::TcpConnection(EventLoop* loop, const std::string& name,
                              int sockfd, const sockaddr_in& localAddr,
@@ -33,6 +34,7 @@ Buffer* TcpConnection::getoutputbuffer() { return &outputBuffer_; }
 bool TcpConnection::connected() {return state_== kConnected;}
 bool TcpConnection::disconnected() {return state_== kDisconnected;}
 void TcpConnection::connectEstablished() {
+  LOG_DEBUG << "SUCCESS";
   setState(kConnected);
   channel_->enableReading();
   concallback_(shared_from_this());
@@ -88,6 +90,8 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
   // int n = read(channel_->getFd(), buf, sizeof(buf));
   int n = inputBuffer_.readFd(channel_->getFd(), &Errno);
   if (n > 0) {
+    LOG_DEBUG << n;
+    // mescallback_(shared_from_this(), &buf, receiveTime);
     mescallback_(shared_from_this(), &inputBuffer_, receiveTime);
   } else if (n == 0) {
     handleClose();

@@ -112,7 +112,7 @@ LogStream& LogStream::operator<<(const char* b)
     if(b){
     buffer_.append(b, strlen(b));
   } else {
-    buffer_.append("null", 6);
+    buffer_.append("(null)", 6);
   }
 
   return *this;

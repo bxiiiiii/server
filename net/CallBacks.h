@@ -3,10 +3,11 @@
 #include <functional>
 #include <memory>
 
-#include "../base/Timestamp.h"
+// #include "../base/Timestamp.h"
 #include "Buffer.h"
 class TcpConnection;
 class EventLoop;
+class Timestamp;
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef std::function<void(int sockfd, const struct sockaddr_in&)>
     NewConnectionCallback;

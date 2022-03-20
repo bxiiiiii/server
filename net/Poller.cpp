@@ -1,5 +1,7 @@
 #include "Poller.h"
 #include "Channel.h"
+#include "../base/Timestamp.h"
+#include "../base/Logging.h"
 
 Poller::Poller(EventLoop* loop) : loop_(loop) {}
 
@@ -7,7 +9,8 @@ Poller::Poller(EventLoop* loop) : loop_(loop) {}
 
 Timestamp Poller::poll(int time, ChannelList* activeChannels) {
   int numEvents = ::poll(PollFdList.data(), PollFdList.size() + 1, time);
-  Timestamp timestamp(time);
+  // LOG_DEBUG << "numevents : " << numEvents;
+  Timestamp timestamp;
   if (numEvents > 0) {
     fileActiveChannels(numEvents, activeChannels);
   }
@@ -16,6 +19,7 @@ Timestamp Poller::poll(int time, ChannelList* activeChannels) {
 }
 
 void Poller::updateChannel(Channel* channel) {
+  LOG_DEBUG << "fd:" << channel->getFd() << " pi:" << channel->getPollindex();
   if (channel->getPollindex() < 0) {
     struct pollfd event;
     event.fd = channel->getFd();
@@ -37,16 +41,17 @@ void Poller::updateChannel(Channel* channel) {
 }
 
 void Poller::removeChannel(Channel* channel) {
-  int idx = channel->getFd();
+  int idx = channel->getPollindex();
   struct pollfd& event = PollFdList[idx];
   int n = ChannelMap.erase(idx);
-  if (idx == PollFdList.size() - 1) {
+  LOG_DEBUG << idx << " " << PollFdList.size();
+  if (static_cast<size_t>(idx) == PollFdList.size() - 1) {
     PollFdList.pop_back();
   } else {
     int channelAtEnd = PollFdList.back().fd;
     iter_swap(PollFdList.begin() + idx, PollFdList.end() - 1);
     if (channelAtEnd < 0) {
-      channelAtEnd - -channelAtEnd - 1;
+      channelAtEnd = -channelAtEnd - 1;
     }
     ChannelMap[channelAtEnd]->setPollindex(idx);
     PollFdList.pop_back();

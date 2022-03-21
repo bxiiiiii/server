@@ -1,9 +1,19 @@
-
+#ifndef NET_EVENTLOOPTHREAD_H
+#define NET_EVENTLOOPTHREAD_H
 #include "CallBacks.h"
-class EventLoopThread
-{
-    public:
-    EventLoopThread(const ThreadInitCallback & callback,char* name);
+#include <mutex>
+#include <condition_variable>
+class EventLoopThread {
+ public:
+  EventLoopThread(const ThreadInitCallback& callback, char* name);
 
-    EventLoop* startLoop();
+ private:
+  void threadFunc();
+
+  EventLoop* startLoop();
+  std::mutex mutex_;
+  std::condition_variable cond_;
+  ThreadInitCallback threadinitcallback_;
 };
+
+#endif;

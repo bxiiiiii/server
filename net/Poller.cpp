@@ -19,7 +19,7 @@ Timestamp Poller::poll(int time, ChannelList* activeChannels) {
 }
 
 void Poller::updateChannel(Channel* channel) {
-  LOG_DEBUG << "fd:" << channel->getFd() << " pi:" << channel->getPollindex();
+  LOG_DEBUG << "fd:" << channel->getFd() << " pi:" << channel->getPollindex() << " " << PollFdList.size();
   if (channel->getPollindex() < 0) {
     struct pollfd event;
     event.fd = channel->getFd();
@@ -62,8 +62,13 @@ void Poller::fileActiveChannels(int numEvents, ChannelList* activeChannel) {
   for (auto event : PollFdList) {
     if (numEvents == 0) break;
     if (event.revents > 0) {
+      LOG_DEBUG << event.fd;
       auto ch = ChannelMap.find(event.fd);
+      // for(auto i : ChannelMap){
+      //   std::cout << i.first << " " << i.second->getFd() << std::endl;
+      // }
       Channel* channel = ch->second;
+      LOG_DEBUG << channel->getFd();
       channel->setRevent(event.revents);
       activeChannel->push_back(channel);
       --numEvents;

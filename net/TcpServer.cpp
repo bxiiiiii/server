@@ -1,15 +1,20 @@
 #include "TcpServer.h"
 
+#include "../base/Logging.h"
 #include "Acceptor.h"
 #include "EventLoop.h"
-#include "../base/Logging.h"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 
-TcpServer::TcpServer(EventLoop* loop, const sockaddr_in& addr)
-    : loop_(loop), acceptor_(new Acceptor(loop, addr)), localaddr_(addr) {
+TcpServer::TcpServer(EventLoop* loop, const sockaddr_in& addr,
+                     const std::string& name)
+    : loop_(loop),
+      acceptor_(new Acceptor(loop, addr)),
+      localaddr_(addr),
+      nextConnId_(0),
+      name_(name) {
   acceptor_->setAcceptCallBack(
       std::bind(&TcpServer::newConnection, this, _1, _2));
 }
@@ -36,7 +41,10 @@ void TcpServer::setMessageCallBack(const MessageCallBack& callback) {
 
 void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   LOG_DEBUG << " ";
-  std::string conName = "gg";
+  char buf[64];
+  snprintf(buf, sizeof buf, "-%d", nextConnId_);
+  ++nextConnId_;
+  std::string conName = name_ + buf;
 
   TcpConnectionPtr con(
       new TcpConnection(loop_, conName, sockfd, localaddr_, peeraddr));
@@ -44,6 +52,7 @@ void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   con->setConnectionCallBack(connectionCallBack_);
   con->setMessageCallBack(messageCallBack_);
   con->setCloseCallBack(std::bind(&TcpServer::removeConnection, this, _1));
+  con->setWriteCompleteCallBack(writeCompleteCallBack_);
   loop_->runInLoop(std::bind(&TcpConnection::connectEstablished, con));
 }
 void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
@@ -53,7 +62,6 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
   size_t n = connections_.erase(conn->getname());
   LOG_DEBUG << n;
   EventLoop* loop = conn->getLoop();
-  //loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
   loop->runInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
 }
 

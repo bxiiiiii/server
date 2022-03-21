@@ -15,6 +15,7 @@ typedef std::function<void()> EventCallBack;
 typedef std::function<void(Timestamp)> ReadEventCallBack;
 typedef std::function<void(const TcpConnectionPtr&)> CloseCallBack;
 typedef std::function<void(const TcpConnectionPtr&)> ConnectionCallBack;
+typedef std::function<void(const TcpConnectionPtr&)> WriteCompleteCallBack;
 typedef std::function<void(const TcpConnectionPtr&, Buffer*, Timestamp)>
     MessageCallBack;
 typedef std::function<void()> Functor;

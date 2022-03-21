@@ -9,7 +9,7 @@ class Acceptor;
 
 class TcpServer {
  public:
-  TcpServer(EventLoop* loop, const sockaddr_in& addr);
+  TcpServer(EventLoop* loop, const sockaddr_in& addr, const std::string& name);
   ~TcpServer();
 
   void start();
@@ -31,7 +31,9 @@ class TcpServer {
   std::unique_ptr<Acceptor> acceptor_;
   ConnectionCallBack connectionCallBack_;
   MessageCallBack messageCallBack_;
+  WriteCompleteCallBack writeCompleteCallBack_;
   ConnectionMap connections_;
+  int nextConnId_;
 };
 
 #endif

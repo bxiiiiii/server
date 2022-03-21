@@ -59,6 +59,11 @@ void TcpConnection::setConnectionCallBack(const ConnectionCallBack& callback) {
     closecallback_ = callback;
   }
 
+  void TcpConnection::setWriteCompleteCallBack(const WriteCompleteCallBack& callback)
+  {
+    writeCompletecallback_ = callback;
+  }
+
 void TcpConnection::send(const std::string& message) {
   if (state_ == kConnected) {
     if (loop_->isInLoopThread()) {
@@ -126,23 +131,41 @@ void TcpConnection::handleClose() {
 void TcpConnection::handleError() {}
 
 void TcpConnection::sendInLoop(const std::string& message) {
-  ssize_t nwrote;
-  if (!channel_->Is_Writing() && outputBuffer_.readableBytes() == 0) {
-    nwrote = write(channel_->getFd(), message.data(), message.size());
-    if (nwrote >= 0) {
-      if (nwrote < message.size()) {
-        // TODO:LOG
-      } else {
-        nwrote = 0;
-        // TODO:log
-      }
-    }
-  }
+  // ssize_t nwrote;
+  // if (!channel_->Is_Writing() && outputBuffer_.readableBytes() == 0) {
+  //   nwrote = write(channel_->getFd(), message.data(), message.size());
+  //   if (nwrote >= 0) {
+  //     if (nwrote < message.size()) {
+  //       // TODO:LOG
+  //     } else {
+  //       nwrote = 0;
+  //       // TODO:log
+  //     }
+  //   }
+  // }
 
-  if (nwrote < message.size()) {
-    outputBuffer_.append(message.data() + nwrote, message.size() - nwrote);
-    if (!channel_->Is_Writing()) {
-      channel_->enableWriting();
+  // if (nwrote < message.size()) {
+  //   outputBuffer_.append(message.data() + nwrote, message.size() - nwrote);
+  //   if (!channel_->Is_Writing()) {
+  //     channel_->enableWriting();
+  //   }
+  // }
+  size_t len = message.size();
+  ssize_t nworte = 0;
+  size_t remaining = message.size();
+  if(state_ == kDisconnected){
+    LOG_WARN <<"disconnected";
+    return;
+  }
+  if(!channel_->Is_Writing() &&outputBuffer_.readableBytes() == 0){
+    nworte = ::write(channel_->getFd(), message.data(), len);
+    if(nworte >= 0){
+      remaining = len - nworte;
+      if(remaining == 0 &&  writeCompletecallback_){
+        loop_->queueInLoop(std::bind(writeCompletecallback_, shared_from_this()));
+      }
+    } else {
+      nworte = 0;
     }
   }
 }

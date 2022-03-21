@@ -28,6 +28,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   void setMessageCallBack(const MessageCallBack& callback);
   void setConnectionCallBack(const ConnectionCallBack& callback);
   void setCloseCallBack(const CloseCallBack& callback);
+  void setWriteCompleteCallBack(const WriteCompleteCallBack& callback);
 
   void send(const std::string& message);
   void send(Buffer* message);
@@ -61,6 +62,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   MessageCallBack mescallback_;
   ConnectionCallBack concallback_;
   CloseCallBack closecallback_;
+  WriteCompleteCallBack writeCompletecallback_;
   Buffer inputBuffer_;
   Buffer outputBuffer_;
 };

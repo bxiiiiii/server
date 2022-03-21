@@ -17,7 +17,9 @@ Channel::Channel(int fd, EventLoop* loop)
       addedToLoop_(false),
       eventHanding_(false) {}
 
-Channel::~Channel() = default;
+Channel::~Channel(){
+  LOG_DEBUG << "channel des";
+};
 
 void Channel::setReadCallBack(ReadEventCallBack func) { readCallBack = func; }
 
@@ -72,9 +74,9 @@ bool Channel::Is_Reading() { return event_ & kReadEvent; }
 
 void Channel::handleEvent(Timestamp receivetime) {
   eventHanding_ = true;
-    if ((revent_ & POLLHUP) && !(revent_ & POLLIN)){
-    if (closeCallBack) closeCallBack();
-  }
+    // if ((revent_ & POLLHUP) && !(revent_ & POLLIN)){
+    // if (closeCallBack) closeCallBack();
+  // }
   if (revent_ & POLLIN) {
     if (readCallBack) {
       readCallBack(receivetime);

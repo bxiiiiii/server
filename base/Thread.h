@@ -3,6 +3,9 @@
 
 #include <functional>
 #include <thread>
+#include <future>
+
+
 
 class Thread {
  public:
@@ -11,13 +14,18 @@ class Thread {
   ~Thread();
 
   void start();
+  int join();
   bool started() { return started_; }
   pid_t gettid() {return tid_;}
  private:
   bool started_;
   pid_t tid_;
-  std::unique_ptr<std::thread> thread_;
+  pthread_t pthreadId_;
+  std::string name_;
+  // std::unique_ptr<std::thread> thread_;
   ThreadFunc func_;
+  std::promise<void> latch_;
 };
+
 
 #endif

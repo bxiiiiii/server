@@ -1,34 +1,51 @@
 #include "Thread.h"
 
-namespace server
-{
-    namespace CurrentThread
-    {
-        thread_local int t_cachedTid = 0;
-        thread_local std::string t_tidString;       
-    }
+#include <syscall.h>
+#include <unistd.h>
+// namespace CurrentThread {
+// thread_local int t_cachedTid = 0;
+// thread_local std::string t_tidString;
+// }  // namespace CurrentThread
 
-    namespace detail
-    {
-    
+Thread::Thread(ThreadFunc func)
+    : started_(false), tid_(0), func_(std::move(func)) {}
+
+Thread::~Thread() {}
+
+pid_t gettid() { return syscall(SYS_gettid); }
+
+class ThreadData {
+ public:
+  typedef std::function<void()> ThreadFunc;
+  ThreadData(ThreadFunc& func, std::string& name, pid_t* tid, std::promise<void> &latch)
+      : func_(func), name_(name), tid_(tid), latch_(latch){};
+  ~ThreadData();
+
+  ThreadFunc func_;
+  std::string name_;
+  pid_t* tid_;
+  std::promise<void> &latch_;
+};
+
+void* runInThread(void* arg) {
+  ThreadData* data = static_cast<ThreadData*>(arg);
+  *data->tid_ = gettid();
+    data->latch_.set_value();
+  data->func_();
+
+  return NULL;
 }
 
-        Thread::Thread(ThreadFunc func) 
-            : started_(false),
-                tid_(0),
-                func_(std::move(func))
-        {
-            
-        }
+void Thread::start() {
+  std::future<void> latch = latch_.get_future();
+  started_ = true;
+  ThreadData* data = new ThreadData(func_, name_, &tid_, latch_);
+  if (pthread_create(&pthreadId_, NULL, &runInThread, data)) {
+    started_ = false;
+    delete data;
+  } else {
+    latch.get();
+  }
+}
 
-        Thread::~Thread()
-        {
-            
-        }
-
-        void Thread::start()
-        {
-            started_ = true;
-            thread_
-        }
-    }
+int Thread::join() { return pthread_join(pthreadId_, NULL); }

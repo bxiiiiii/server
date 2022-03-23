@@ -14,7 +14,8 @@ TcpServer::TcpServer(EventLoop* loop, const sockaddr_in& addr,
       acceptor_(new Acceptor(loop, addr)),
       localaddr_(addr),
       nextConnId_(0),
-      name_(name) {
+      name_(name),
+      pool_(new EventLoopThreadPool(loop_, name)) {
   acceptor_->setAcceptCallBack(
       std::bind(&TcpServer::newConnection, this, _1, _2));
 }
@@ -29,6 +30,7 @@ TcpServer::~TcpServer() {
 }
 
 void TcpServer::start() {
+  pool_->start(threadInitCallBack_);
   loop_->runInLoop(std::bind(&Acceptor::listen, acceptor_.get()));
 }
 void TcpServer::setConnectionCallBack(const ConnectionCallBack& callback) {
@@ -46,14 +48,15 @@ void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   ++nextConnId_;
   std::string conName = name_ + buf;
 
+  EventLoop* ioloop = pool_->getNextLoop();
   TcpConnectionPtr con(
-      new TcpConnection(loop_, conName, sockfd, localaddr_, peeraddr));
+      new TcpConnection(ioloop, conName, sockfd, localaddr_, peeraddr));
   connections_[conName] = con;
   con->setConnectionCallBack(connectionCallBack_);
   con->setMessageCallBack(messageCallBack_);
   con->setCloseCallBack(std::bind(&TcpServer::removeConnection, this, _1));
   con->setWriteCompleteCallBack(writeCompleteCallBack_);
-  loop_->runInLoop(std::bind(&TcpConnection::connectEstablished, con));
+  ioloop->runInLoop(std::bind(&TcpConnection::connectEstablished, con));
 }
 void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
   loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
@@ -62,7 +65,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
   size_t n = connections_.erase(conn->getname());
   LOG_DEBUG << n;
   EventLoop* loop = conn->getLoop();
-  loop->runInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
+  loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
 }
 
 EventLoop* TcpServer::getloop() { return loop_; }

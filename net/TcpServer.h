@@ -4,6 +4,7 @@
 #include <map>
 
 #include "TcpConnection.h"
+#include "EventLoopThreadPool.h"
 
 class Acceptor;
 
@@ -33,6 +34,8 @@ class TcpServer {
   MessageCallBack messageCallBack_;
   WriteCompleteCallBack writeCompleteCallBack_;
   ConnectionMap connections_;
+  std::shared_ptr<EventLoopThreadPool> pool_;
+  ThreadInitCallback threadInitCallBack_;
   int nextConnId_;
 };
 

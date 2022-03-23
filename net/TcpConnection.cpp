@@ -2,8 +2,8 @@
 
 #include <unistd.h>
 
-#include "Channel.h"
 #include "../base/Logging.h"
+#include "Channel.h"
 
 TcpConnection::TcpConnection(EventLoop* loop, const std::string& name,
                              int sockfd, const sockaddr_in& localAddr,
@@ -31,8 +31,8 @@ const sockaddr_in& TcpConnection::getpeerAddr() { return peeraddr_; }
 Buffer* TcpConnection::getinputbuffer() { return &inputBuffer_; }
 Buffer* TcpConnection::getoutputbuffer() { return &outputBuffer_; }
 
-bool TcpConnection::connected() {return state_== kConnected;}
-bool TcpConnection::disconnected() {return state_== kDisconnected;}
+bool TcpConnection::connected() { return state_ == kConnected; }
+bool TcpConnection::disconnected() { return state_ == kDisconnected; }
 void TcpConnection::connectEstablished() {
   LOG_DEBUG << "SUCCESS";
   setState(kConnected);
@@ -54,15 +54,14 @@ void TcpConnection::setMessageCallBack(const MessageCallBack& callback) {
 void TcpConnection::setConnectionCallBack(const ConnectionCallBack& callback) {
   concallback_ = callback;
 }
-  void TcpConnection::setCloseCallBack(const CloseCallBack& callback)
-  {
-    closecallback_ = callback;
-  }
+void TcpConnection::setCloseCallBack(const CloseCallBack& callback) {
+  closecallback_ = callback;
+}
 
-  void TcpConnection::setWriteCompleteCallBack(const WriteCompleteCallBack& callback)
-  {
-    writeCompletecallback_ = callback;
-  }
+void TcpConnection::setWriteCompleteCallBack(
+    const WriteCompleteCallBack& callback) {
+  writeCompletecallback_ = callback;
+}
 
 void TcpConnection::send(const std::string& message) {
   if (state_ == kConnected) {
@@ -90,13 +89,10 @@ void TcpConnection::stopRead() {
 bool TcpConnection::isReading() { return reading_; }
 
 void TcpConnection::handleRead(Timestamp receiveTime) {
-  // char buf[1024];
   int Errno;
-  // int n = read(channel_->getFd(), buf, sizeof(buf));
   int n = inputBuffer_.readFd(channel_->getFd(), &Errno);
   if (n > 0) {
     LOG_DEBUG << n;
-    // mescallback_(shared_from_this(), &buf, receiveTime);
     mescallback_(shared_from_this(), &inputBuffer_, receiveTime);
   } else if (n == 0) {
     handleClose();
@@ -110,13 +106,18 @@ void TcpConnection::handleWrite() {
                            outputBuffer_.readableBytes());
     if (nwrote > 0) {
       outputBuffer_.retrieve(nwrote);
-      if (state_ == kDisconnecting) {
-        shutdownInLoop();
-      } else {
-        // TODO:LOG
+      if (outputBuffer_.readableBytes() == 0) {
+        channel_->disableWrting();
+        if (writeCompletecallback_) {
+          loop_->queueInLoop(
+              std::bind(writeCompletecallback_, shared_from_this()));
+        }
+        if (state_ == kDisconnecting) {
+          shutdownInLoop();
+        }
       }
-    } else {
-      // TODO:LOG
+    }else{
+      //TODO:LOG
     }
   } else {
     // TODO:LOG
@@ -128,7 +129,9 @@ void TcpConnection::handleClose() {
   TcpConnectionPtr This(shared_from_this());
   closecallback_(This);
 }
-void TcpConnection::handleError() {}
+void TcpConnection::handleError() {
+  //TODO:LOG
+}
 
 void TcpConnection::sendInLoop(const std::string& message) {
   // ssize_t nwrote;
@@ -153,16 +156,17 @@ void TcpConnection::sendInLoop(const std::string& message) {
   size_t len = message.size();
   ssize_t nworte = 0;
   size_t remaining = message.size();
-  if(state_ == kDisconnected){
-    LOG_WARN <<"disconnected";
+  if (state_ == kDisconnected) {
+    LOG_WARN << "disconnected";
     return;
   }
-  if(!channel_->Is_Writing() &&outputBuffer_.readableBytes() == 0){
+  if (!channel_->Is_Writing() && outputBuffer_.readableBytes() == 0) {
     nworte = ::write(channel_->getFd(), message.data(), len);
-    if(nworte >= 0){
+    if (nworte >= 0) {
       remaining = len - nworte;
-      if(remaining == 0 &&  writeCompletecallback_){
-        loop_->queueInLoop(std::bind(writeCompletecallback_, shared_from_this()));
+      if (remaining == 0 && writeCompletecallback_) {
+        loop_->queueInLoop(
+            std::bind(writeCompletecallback_, shared_from_this()));
       }
     } else {
       nworte = 0;

@@ -15,7 +15,10 @@ Channel::Channel(int fd, EventLoop* loop)
       revent_(kNoneEvent),
       Pollindex_(-1),
       addedToLoop_(false),
-      eventHanding_(false) {}
+      eventHanding_(false) {
+
+        LOG_DEBUG << "";
+      }
 
 Channel::~Channel(){
   LOG_DEBUG << "channel des";

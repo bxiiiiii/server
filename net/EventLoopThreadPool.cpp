@@ -1,9 +1,10 @@
 #include "EventLoopThreadPool.h"
 
 #include "EventLoopThread.h"
+#include "../base/Logging.h"
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseloop)
-    : baseloop_(baseloop), started_(false), numThreads_(0), next_(0) {}
+EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseloop, const std::string& name)
+    : baseloop_(baseloop), started_(false), numThreads_(10), next_(0), name_(name) {}
 
 EventLoopThreadPool::~EventLoopThreadPool()
 {
@@ -12,6 +13,7 @@ EventLoopThreadPool::~EventLoopThreadPool()
 
 void EventLoopThreadPool::start(const ThreadInitCallback& callback)
 {
+    LOG_DEBUG << "";
     started_ = true;
     for(int i = 0; i < numThreads_; i++){
         char buf[name_.size() + 32];

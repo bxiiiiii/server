@@ -2,7 +2,7 @@
 
 #include "EventLoop.h"
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
+EventLoopThread::EventLoopThread(const ThreadInitCallback& cb, const std::string& name)
     : loop_(nullptr),
       exiting_(false),
       thread_(std::bind(&EventLoopThread::threadFunc, this)),
@@ -24,9 +24,8 @@ EventLoop* EventLoopThread::startLoop() {
       cond_.wait(lock);
     }
     loop_ = loop;
-    std::unique_lock<std::mutex> lock(mutex_);
-    loop_ = nullptr;
   }
+  return loop;
 }
 
 void EventLoopThread::threadFunc() {
@@ -40,4 +39,8 @@ void EventLoopThread::threadFunc() {
     loop_ = &loop;
     cond_.notify_one();
   }
+
+  loop.loop();
+  std::unique_lock<std::mutex> lock(mutex_);
+  loop_ = nullptr;
 }

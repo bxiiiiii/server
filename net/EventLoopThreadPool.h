@@ -11,7 +11,7 @@ class EventLoopThreadPool
 {
     public:
     
-    EventLoopThreadPool(EventLoop* baseloop);
+    EventLoopThreadPool(EventLoop* baseloop,const std::string& name);
     ~EventLoopThreadPool();
 
     void setThreadNum(int numThreads);

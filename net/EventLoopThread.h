@@ -7,7 +7,7 @@
 #include "CallBacks.h"
 class EventLoopThread {
  public:
-  EventLoopThread(const ThreadInitCallback& callback = ThreadInitCallback());
+  EventLoopThread(const ThreadInitCallback& callback = ThreadInitCallback(), const std::string& name = std::string());
   ~EventLoopThread();
   EventLoop* startLoop();
 
@@ -22,4 +22,4 @@ class EventLoopThread {
   ThreadInitCallback threadinitcallback_;
 };
 
-#endif;
+#endif

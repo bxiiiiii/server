@@ -19,7 +19,7 @@ class ThreadData {
   typedef std::function<void()> ThreadFunc;
   ThreadData(ThreadFunc& func, std::string& name, pid_t* tid, std::promise<void> &latch)
       : func_(func), name_(name), tid_(tid), latch_(latch){};
-  ~ThreadData();
+  ~ThreadData() = default;
 
   ThreadFunc func_;
   std::string name_;

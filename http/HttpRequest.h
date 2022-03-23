@@ -5,8 +5,8 @@
 #include <string>
 #include <map>
 
-namespace bxx {
-namespace net {
+// namespace bxx {
+// namespace net {
 using std::string;
 class HttpRequest {
  public:
@@ -69,7 +69,7 @@ class HttpRequest {
 
     void setPath(const char* start, const size_t len) { path_.assign(start, len); }
     const string& path() const { return path_; }
-    void setQuery(const char* start, const size_t len) { quert_.assign(start, len); }
+    void setQuery(const char* start, const size_t len) { query_.assign(start, len); }
     const string& query() const { return query_; }
     void addBody(const char* start, const char* end) { body_.append(start, end); }
     const string& body() const { return body_; }
@@ -84,7 +84,7 @@ class HttpRequest {
   std::map<string, string> headers_;
 };
 
-}  // namespace net
-}  // namespace bxx
+// }  // namespace net
+// }  // namespace bxx
 
 #endif

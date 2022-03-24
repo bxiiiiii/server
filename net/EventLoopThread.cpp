@@ -1,6 +1,7 @@
 #include <EventLoopThread.h>
 
 #include "EventLoop.h"
+#include "../base/Logging.h"
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb, const std::string& name)
     : loop_(nullptr),
@@ -23,14 +24,16 @@ EventLoop* EventLoopThread::startLoop() {
     while (loop_ == nullptr) {
       cond_.wait(lock);
     }
-    loop_ = loop;
+    loop = loop_;
   }
   return loop;
 }
 
 void EventLoopThread::threadFunc() {
   EventLoop loop;
+     LOG_DEBUG<<"";
   if (threadinitcallback_) {
+    LOG_DEBUG<<"";
     threadinitcallback_(&loop);
   }
 

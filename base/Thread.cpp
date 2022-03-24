@@ -1,4 +1,5 @@
 #include "Thread.h"
+#include "../base/Logging.h"
 
 #include <syscall.h>
 #include <unistd.h>
@@ -28,6 +29,7 @@ class ThreadData {
 };
 
 void* runInThread(void* arg) {
+  LOG_DEBUG << "";
   ThreadData* data = static_cast<ThreadData*>(arg);
   *data->tid_ = gettid();
     data->latch_.set_value();
@@ -37,12 +39,14 @@ void* runInThread(void* arg) {
 }
 
 void Thread::start() {
+  LOG_DEBUG <<"";
   std::future<void> latch = latch_.get_future();
   started_ = true;
   ThreadData* data = new ThreadData(func_, name_, &tid_, latch_);
   if (pthread_create(&pthreadId_, NULL, &runInThread, data)) {
     started_ = false;
     delete data;
+    LOG_DEBUG << "thread create failed";
   } else {
     latch.get();
   }

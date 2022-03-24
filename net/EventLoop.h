@@ -4,6 +4,7 @@
 #include <mutex>
 #include "CallBacks.h"
 #include "../base/Timestamp.h"
+#include "../base/Logging.h"
 
 // class Channel;
 class Poller;
@@ -29,6 +30,7 @@ public:
     void runInLoop(const Functor& callback);
     void queueInLoop(const Functor& callback);
     
+    void printThreadID(){LOG_DEBUG << threadId;}
 private:
     void abortNotInLoopThread();
     void doPendingFunctors();

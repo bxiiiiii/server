@@ -2,8 +2,8 @@
 #define Http_HTTPREQUEST_H
 
 #include <cstring>
-#include <string>
 #include <map>
+#include <string>
 
 // namespace bxx {
 // namespace net {
@@ -67,13 +67,21 @@ class HttpRequest {
     return result;
   }
 
-    void setPath(const char* start, const size_t len) { path_.assign(start, len); }
-    const string& path() const { return path_; }
-    void setQuery(const char* start, const size_t len) { query_.assign(start, len); }
-    const string& query() const { return query_; }
-    void addBody(const char* start, const char* end) { body_.append(start, end); }
-    const string& body() const { return body_; }
-    void setHeader(string key, string value) { headers_.insert({key.data(), value.data()}); }
+  void setPath(const char* start, const size_t len) {
+    path_.assign(start, len);
+  }
+  const string& path() const { return path_; }
+  void setQuery(const char* start, const size_t len) {
+    query_.assign(start, len);
+  }
+  const string& query() const { return query_; }
+  void addBody(const char* start, const char* end) { body_.append(start, end); }
+  const string& body() const { return body_; }
+  void setHeader(string key, string value) {
+    headers_.insert({key.data(), value.data()});
+  }
+
+  std::map<string, string> getheaders() { return headers_; }
 
  private:
   Method method_;

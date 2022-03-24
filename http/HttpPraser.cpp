@@ -2,37 +2,45 @@
 
 void HttpPraser::prase_line() {
   char temp;
+  start_line_ = check_index_;
   for (; check_index_ < read_index_; ++check_index_) {
     temp = buf[check_index_];
     if (temp == '\r') {
       if ((check_index_ + 1) == read_index_) {
         line_status_ = LINE_OPEN;
-        goto over;
+        return;
       } else if (buf[check_index_ + 1] == '\n') {
         line_status_ = LINE_OK;
-        buf[check_index_++] = '\0';
-        buf[check_index_++] = '\0';
-        goto over;
+        // buf[check_index_++] = '\0';
+        // buf[check_index_++] = '\0';
+        check_index_ += 2;
+        return;
       }
       line_status_ = LINE_BAD;
       return;
     } else if (temp == '\n') {
       if ((check_index_ > 1) && buf[check_index_ - 1] == '\r') {
-        buf[check_index_ - 1] = '\0';
-        buf[check_index_++] = '\0';
+        // buf[check_index_ - 1] = '\0';
+        // buf[check_index_++] = '\0';
+        check_index_++;
         line_status_ = LINE_OK;
-        goto over;
+        return;
       }
       line_status_ = LINE_BAD;
-      goto over;
+      return;
     }
   }
   line_status_ = LINE_BAD;
-over:
 }
 
 void HttpPraser::prase_questline() {
-  for (int i = start_line_; i < read_index_;) {
+  prase_line();
+  if (line_status_ != LINE_OK) {
+    return;
+  }
+
+  int i = start_line_;
+  while (i <= check_index_) {
     if (strncmp(buf + i, "GET", strlen("GET")) == 0) {
       request_.setMethod("GET", strlen("GET"));
       i += strlen("Get");
@@ -46,35 +54,94 @@ void HttpPraser::prase_questline() {
       line_status_ = LINE_BAD;
       return;
     }
+
     if (buf[i++] != ' ') {
+      line_status_ = LINE_BAD;
       return;
     }
 
-    request_.setPath(string(buf + begin, i - begin - 1), i - begin - 1);
+    int url_start = i;
+    while (buf[i] != ' ') {
+      i++;
+    }
+    request_.setPath(string(buf + url_start, i - url_start - 1).data(),
+                     i - url_start - 1);
 
     if (strncmp(buf + i, "HTTP/1.0", strlen("HTTP/1.0")) == 0 ||
         strncmp(buf + i, "HTTP/1.1", strlen("HTTP/1.1")) == 0) {
-              request_.setVersion(string(buf + i, strlen("HTTP/1.0")), strlen("HTTP/1.0"));
+      request_.setVersion(string(buf + i, strlen("HTTP/1.0")).data(),
+                          strlen("HTTP/1.0"));
+    }
+
+    line_status_ = LINE_OK;
+    break;
+  }
+}
+
+void HttpPraser::prase_header() {
+  while (check_index_ < read_index_) {
+    prase_line();
+    if (line_status_ != LINE_OK) {
+      return;
+    }
+
+    int seprate;
+    for (int i = start_line_; i < check_index_; ++i) {
+      if (buf[i] == ':') {
+        seprate = i;
+        break;
+      }
+      if (i == read_index_ - 1) {
+        line_status_ = LINE_OPEN;
+        return;
+      }
+    }
+    request_.setHeader(string(buf + seprate - 1, seprate - start_line_),
+                       string(buf + seprate + 1, check_index_ - 2));
+    if (check_index_ + 2 <= read_index_ && buf[check_index_] == '\r' &&
+        buf[check_index_ + 1] == 'n') {
+      line_status_ = LINE_OK;
+      return;
     }
   }
 }
 
+void HttpPraser::prase_body()
+{
+
+}
+
 HttpPraser::HTTP_CODE HttpPraser::prase() {
-  do {
-    prase_line();
+  while (check_index_ != read_index_) {
+    // prase_line();
     switch (check_status_) {
       case PRASE_LINE:
         prase_questline();
+        if (line_status_ == LINE_OK) {
+          check_index_ = PRASE_HEAD;
+        } else if (line_status_ == LINE_BAD) {
+          return BAD_REQUEST;
+        } else {
+          return NO_REQUEST;
+        }
         break;
       case PRASE_HEAD:
         prase_header();
+        if (line_status_ == LINE_OK) {
+          check_index_ = PRASE_BODY;
+        } else if (line_status_ == LINE_BAD) {
+          return BAD_REQUEST;
+        } else {
+          return NO_REQUEST;
+        }
         break;
       case PRASE_BODY:
+      auto kv = request_.getheaders().get("Content-Length")
         prase_body();
+        if(line_state)
         break;
       default:
         break;
     }
-
-  } while (line_status_ == LINE_OK);
+  }
 }

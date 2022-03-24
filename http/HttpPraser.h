@@ -1,7 +1,7 @@
 #include "HttpRequest.h"
 
 class HttpPraser {
-public:
+ public:
   enum CHECK_STATUS {
     PRASE_LINE,
     PRASE_HEAD,
@@ -17,6 +17,16 @@ public:
     GET_REQUEST,
     BAD_REQUEST,
   };
+
+  HttpPraser()
+      : data_index_(0),
+        read_index_(sizeof(buf)),
+        check_index_(0),
+        start_line_(0),
+        check_status_(PRASE_LINE){
+
+        };
+
   void prase_line();
   void prase_questline();
   void prase_header();
@@ -28,6 +38,7 @@ public:
   LINE_STATUS line_status_;
   HTTP_CODE http_code_;
   HttpRequest request_;
+
   int data_index_;
   int read_index_;
   int check_index_;

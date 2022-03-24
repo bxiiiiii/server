@@ -2,6 +2,8 @@
 #include "Channel.h"
 #include "../base/Timestamp.h"
 #include "../base/Logging.h"
+#include <syscall.h>
+#include <unistd.h>
 
 Poller::Poller(EventLoop* loop) : loop_(loop) {}
 
@@ -19,7 +21,6 @@ Timestamp Poller::poll(int time, ChannelList* activeChannels) {
 }
 
 void Poller::updateChannel(Channel* channel) {
-  LOG_DEBUG << "fd:" << channel->getFd() << " pi:" << channel->getPollindex() << " " << PollFdList.size();
   if (channel->getPollindex() < 0) {
     struct pollfd event;
     event.fd = channel->getFd();
@@ -29,6 +30,8 @@ void Poller::updateChannel(Channel* channel) {
     int idx = PollFdList.size() - 1;
     channel->setPollindex(idx);
     ChannelMap[event.fd] = channel;
+
+  LOG_DEBUG << "fd:" << channel->getFd() << " pi:" << channel->getPollindex() << " " << PollFdList.size()<< " " << syscall(SYS_gettid);
   } else {
     int idx = channel->getPollindex();
     struct pollfd& event = PollFdList[idx];

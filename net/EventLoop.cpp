@@ -31,6 +31,7 @@ EventLoop::EventLoop()
   wakeupChannel_->setReadCallBack(std::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
   wakeupChannel_->enableReading();
+  LOG_DEBUG << threadId;
 }
 
 EventLoop::~EventLoop() {
@@ -71,7 +72,9 @@ void EventLoop::handleRead() {
 }
 
 void EventLoop::assertInLoopThread() {}
-bool EventLoop::isInLoopThread() { return threadId == syscall(SYS_gettid); }
+bool EventLoop::isInLoopThread() { 
+  LOG_DEBUG << threadId << " " << syscall(SYS_gettid);
+  return threadId == syscall(SYS_gettid); }
 
 void EventLoop::updateChannel(Channel* channel) {
   poller_->updateChannel(channel);

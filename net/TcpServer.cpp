@@ -49,6 +49,7 @@ void TcpServer::newConnection(int sockfd, const struct sockaddr_in& peeraddr) {
   std::string conName = name_ + buf;
 
   EventLoop* ioloop = pool_->getNextLoop();
+      ioloop->printThreadID();
   TcpConnectionPtr con(
       new TcpConnection(ioloop, conName, sockfd, localaddr_, peeraddr));
   connections_[conName] = con;

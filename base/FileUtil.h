@@ -1,3 +1,6 @@
+#ifndef BASE_FILEUTIL_H
+#define BASE_FILEUTIL_H
+
 #include <string>
 
 static const int kBufferSize = 64 * 1024;
@@ -30,3 +33,4 @@ class AppendFile {
   size_t writtenBytes_;
 };
 
+#endif

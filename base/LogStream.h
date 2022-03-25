@@ -1,3 +1,5 @@
+#ifndef BASE_LOGSTREAM_H
+#define BASE_LOGSTREAM_H
 #include <cstring>
 #include <string>
 
@@ -23,7 +25,7 @@ class FixedBuffer {
   char* current() { return cur_; };
 
   void reset() { cur_ = data_; };
-  void bzero() { memZero(data_, sizeof data_); };
+  void bzero() { memset(data_, 0, sizeof data_); };
 
  private:
   const char* end() const { return data_ + sizeof data_; };
@@ -77,3 +79,5 @@ class LogStream {
 //   char buf[32];
 //   int len_;
 // };
+
+#endif

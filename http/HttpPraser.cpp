@@ -106,9 +106,13 @@ void HttpPraser::prase_header() {
   }
 }
 
-void HttpPraser::prase_body()
-{
+void HttpPraser::prase_body(size_t len) {
+  if(start_line_ + len > read_index_){
+    line_status_ = LINE_BAD;
+    return;
+  }
 
+  request_.addBody(buf+start_line_, len);
 }
 
 HttpPraser::HTTP_CODE HttpPraser::prase() {
@@ -136,9 +140,20 @@ HttpPraser::HTTP_CODE HttpPraser::prase() {
         }
         break;
       case PRASE_BODY:
-      auto kv = request_.getheaders().get("Content-Length")
-        prase_body();
-        if(line_state)
+        auto kv = request_.getheaders().find("Content-Length");
+        if (kv != request_.getheaders().end()) {
+          std::string len = kv->second;
+          int l = std::stoi(len);
+          prase_body(l);
+        }
+
+        if (line_status_ == LINE_OK) {
+          return GET_REQUEST;
+        } else if (line_status_ == LINE_BAD) {
+          return BAD_REQUEST;
+        } else {
+          return NO_REQUEST;
+        }
         break;
       default:
         break;

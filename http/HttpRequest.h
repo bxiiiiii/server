@@ -75,7 +75,9 @@ class HttpRequest {
     query_.assign(start, len);
   }
   const string& query() const { return query_; }
-  void addBody(const char* start, const char* end) { body_.append(start, end); }
+  void addBody(const char* start, size_t len) {
+    body_.append(start, len);
+  }
   const string& body() const { return body_; }
   void setHeader(string key, string value) {
     headers_.insert({key.data(), value.data()});

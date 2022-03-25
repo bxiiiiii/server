@@ -1,16 +1,16 @@
 #include "AsyncLogging.h"
-#include "LogFile.h"
+
 #include <chrono>
 
-AsyncLogging::AsyncLogging(std::string filename, int flushInterval = 3,
-                           int rollSize = 64 * 1024)
+#include "LogFile.h"
+
+AsyncLogging::AsyncLogging(std::string filename, int flushInterval,
+                           int rollSize)
     : flushInterval_(flushInterval),
       rollSize_(rollSize),
       running_(false),
       filename_(filename),
-      thread_(),
-      mutex_(),
-      // cond_(mutex_),
+      thread_(std::bind(&AsyncLogging::threadFunc, this)),
       currentBuffer_(new Buffer),
       nextBuffer_(new Buffer) {
   currentBuffer_->bzero();
@@ -40,8 +40,10 @@ void AsyncLogging::append(const char* log, size_t len) {
   }
 }
 void AsyncLogging::start() {
+  std::future<void> f = p_.get_future();
   running_ = true;
-  thread_ = std::thread(&AsyncLogging::threadFunc, this);
+  thread_.start();
+  f.get();
 }
 void AsyncLogging::stop() {
   running_ = false;
@@ -50,6 +52,7 @@ void AsyncLogging::stop() {
 }
 
 void AsyncLogging::threadFunc() {
+  p_.set_value();
   LogFile output(filename_, rollSize_, false);
   BufferPtr newBuffer1(new Buffer);
   BufferPtr newBuffer2(new Buffer);
@@ -61,33 +64,33 @@ void AsyncLogging::threadFunc() {
     {
       {
         std::unique_lock<std::mutex> lock(mutex_);
-        if(buffers_.empty()){
-          cond_.wait_for(lock, std::chrono::seconds(flushInterval_));  
+        if (buffers_.empty()) {
+          cond_.wait_for(lock, std::chrono::seconds(flushInterval_));
         }
         buffers_.push_back(std::move(currentBuffer_));
         currentBuffer_ = std::move(newBuffer1);
         buffersToWrite.swap(buffers_);
-        if(!nextBuffer_){
+        if (!nextBuffer_) {
           nextBuffer_ = std::move(newBuffer2);
         }
       }
 
-      if(buffersToWrite.size() > 25){
+      if (buffersToWrite.size() > 25) {
         buffersToWrite.erase(buffersToWrite.begin() + 2, buffersToWrite.end());
       }
 
-      for(auto& buffer : buffersToWrite) {
+      for (auto& buffer : buffersToWrite) {
         output.append(buffer->getdata(), buffer->getlen());
       }
-      if(buffersToWrite.size() > 2){
+      if (buffersToWrite.size() > 2) {
         buffersToWrite.resize(2);
       }
-      if(!newBuffer1){
+      if (!newBuffer1) {
         newBuffer1 = std::move(buffersToWrite.back());
         buffersToWrite.pop_back();
         newBuffer1.reset();
       }
-      if(!newBuffer2){
+      if (!newBuffer2) {
         newBuffer2 = std::move(buffersToWrite.back());
         buffersToWrite.pop_back();
         newBuffer2.reset();

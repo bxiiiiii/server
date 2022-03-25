@@ -1,11 +1,14 @@
+#ifndef BASE_ASYNCLOGGING_H
+#define BASE_ASYNCLOGGING_H
+
 #include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <vector>
-#include <thread>
 #include <functional>
-
+#include <future>
 #include "LogStream.h"
+#include "Thread.h"
 
 class AsyncLogging {
  public:
@@ -31,9 +34,12 @@ class AsyncLogging {
   std::string filename_;
   std::mutex mutex_;
   std::condition_variable cond_;
-  std::thread thread_;
+  std::promise<void> p_;
+  Thread thread_;
   // ThreadFunc threadfunc_;
   BufferPtr currentBuffer_;
   BufferPtr nextBuffer_;
   BufferVector buffers_;
 };
+
+#endif

@@ -107,15 +107,16 @@ void HttpPraser::prase_header() {
 }
 
 void HttpPraser::prase_body(size_t len) {
-  if(start_line_ + len > read_index_){
+  if (start_line_ + len > read_index_) {
     line_status_ = LINE_BAD;
     return;
   }
 
-  request_.addBody(buf+start_line_, len);
+  request_.addBody(buf + start_line_, len);
 }
 
 HttpPraser::HTTP_CODE HttpPraser::prase() {
+  std::map<string, string>::iterator kv;
   while (check_index_ != read_index_) {
     // prase_line();
     switch (check_status_) {
@@ -140,7 +141,7 @@ HttpPraser::HTTP_CODE HttpPraser::prase() {
         }
         break;
       case PRASE_BODY:
-        auto kv = request_.getheaders().find("Content-Length");
+        kv = request_.getheaders().find("Content-Length");
         if (kv != request_.getheaders().end()) {
           std::string len = kv->second;
           int l = std::stoi(len);
@@ -156,6 +157,7 @@ HttpPraser::HTTP_CODE HttpPraser::prase() {
         }
         break;
       default:
+        LOG_DEBUG << "**";
         break;
     }
   }

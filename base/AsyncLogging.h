@@ -2,17 +2,18 @@
 #define BASE_ASYNCLOGGING_H
 
 #include <condition_variable>
+#include <functional>
+#include <future>
 #include <memory>
 #include <mutex>
 #include <vector>
-#include <functional>
-#include <future>
+
 #include "LogStream.h"
 #include "Thread.h"
 
 class AsyncLogging {
  public:
-  AsyncLogging(std::string filename, int flushInterval = 3,
+  AsyncLogging(std::string filename, int flushInterval = 5,
                int rollSize = 64 * 1024);
   ~AsyncLogging();
 
@@ -21,9 +22,9 @@ class AsyncLogging {
   void stop();
 
  private:
- void threadFunc();
-//  def std::function<void()> ThreadFunc;
-  
+  void threadFunc();
+  //  def std::function<void()> ThreadFunc;
+
   typedef FixedBuffer<kLargeBuffer> Buffer;
   typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
   typedef std::unique_ptr<Buffer> BufferPtr;

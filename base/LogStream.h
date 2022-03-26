@@ -9,28 +9,29 @@ const int kLargeBuffer = 4000 * 1000;
 template <int SIZE>
 class FixedBuffer {
  public:
-  FixedBuffer() : cur_(data_){};
+  FixedBuffer() : len_(0){};
   ~FixedBuffer() = default;
   void append(const char* buf, size_t len) {
     if (static_cast<size_t>(avail()) > len) {
-      memcpy(cur_, buf, len);
-      cur_ += len;
+      memcpy(data_+len_, buf, len);
+      len_ += len;
     }
   }
 
   const char* getdata() const { return data_; }
-  int getlen() const { return static_cast<int>(cur_ - data_); }
-  void add(size_t len) { cur_ += len; }
-  int avail() { return static_cast<int>(end() - cur_); }
-  char* current() { return cur_; };
+  int getlen() const { return len_; }
+  void add(size_t len) { len_ += len; }
+  int avail() { return static_cast<int>(SIZE -len_ -1); }
+  char* current() { return data_+len_; };
 
-  void reset() { cur_ = data_; };
+  void reset() { len_ = 0; };
   void bzero() { memset(data_, 0, sizeof data_); };
 
  private:
-  const char* end() const { return data_ + sizeof data_; };
+  const char* end() const { return data_ + SIZE; };
   char data_[SIZE];
-  char* cur_;
+  // char* cur_;
+  int len_;
 };
 
 class LogStream {

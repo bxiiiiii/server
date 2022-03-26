@@ -2,8 +2,8 @@
 #define HTTP_HTTPSERVER_H
 
 #include <../net/TcpServer.h>
-#include <HttpRequest.h>
-#include <HttpResponse.h>
+#include "HttpRequest.h"
+#include "HttpResponse.h"
 #include "HttpPraser.h"
 
 #include <functional>
@@ -12,8 +12,7 @@
 class HttpServer {
  public:
   typedef std::function<void(const HttpRequest&, HttpResponse*)> HttpCallback;
-  HttpServer(EventLoop* loop, const struct sockaddr_in& listenaddr,
-             const std::string& name);
+  HttpServer(EventLoop* loop, const struct sockaddr_in& listenaddr);
   void start();
   void setHttpCallback(const HttpCallback& cb);
 

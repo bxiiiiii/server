@@ -33,6 +33,7 @@ class HttpPraser {
   void prase_body(size_t len);
   HTTP_CODE prase();
   void append(const char* buf, size_t len);
+  HttpRequest getrequest(){return request_;};
 
  private:
   CHECK_STATUS check_status_;

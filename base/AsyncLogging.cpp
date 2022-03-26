@@ -1,6 +1,7 @@
 #include "AsyncLogging.h"
 
 #include <chrono>
+#include <iostream>
 
 #include "LogFile.h"
 
@@ -62,41 +63,45 @@ void AsyncLogging::threadFunc() {
   buffersToWrite.reserve(16);
   while (running_) {
     {
-      {
-        std::unique_lock<std::mutex> lock(mutex_);
-        if (buffers_.empty()) {
-          cond_.wait_for(lock, std::chrono::seconds(flushInterval_));
-        }
-        buffers_.push_back(std::move(currentBuffer_));
-        currentBuffer_ = std::move(newBuffer1);
-        buffersToWrite.swap(buffers_);
-        if (!nextBuffer_) {
-          nextBuffer_ = std::move(newBuffer2);
-        }
+      printf("%p\n", currentBuffer_.get());
+      printf("%p\n", nextBuffer_.get());
+      printf("%p\n", newBuffer1.get());
+      printf("%p\n", newBuffer2.get());
+      std::unique_lock<std::mutex> lock(mutex_);
+      if (buffers_.empty()) {
+        cond_.wait_for(lock, std::chrono::seconds(flushInterval_));
       }
-
-      if (buffersToWrite.size() > 25) {
-        buffersToWrite.erase(buffersToWrite.begin() + 2, buffersToWrite.end());
+      buffers_.push_back(std::move(currentBuffer_));
+      currentBuffer_ = std::move(newBuffer1);
+      buffersToWrite.swap(buffers_);
+      if (!nextBuffer_) {
+        nextBuffer_ = std::move(newBuffer2);
       }
-
-      for (auto& buffer : buffersToWrite) {
-        output.append(buffer->getdata(), buffer->getlen());
-      }
-      if (buffersToWrite.size() > 2) {
-        buffersToWrite.resize(2);
-      }
-      if (!newBuffer1) {
-        newBuffer1 = std::move(buffersToWrite.back());
-        buffersToWrite.pop_back();
-        newBuffer1.reset();
-      }
-      if (!newBuffer2) {
-        newBuffer2 = std::move(buffersToWrite.back());
-        buffersToWrite.pop_back();
-        newBuffer2.reset();
-      }
-      buffersToWrite.clear();
-      output.flush();
     }
+
+    if (buffersToWrite.size() > 25) {
+      buffersToWrite.erase(buffersToWrite.begin() + 2, buffersToWrite.end());
+    }
+    std::cout << buffersToWrite.size() << std::endl;
+    for (auto& buffer : buffersToWrite) {
+      std::cout << buffer->getlen() << std::endl;
+      output.append(buffer->getdata(), buffer->getlen());
+    }
+    if (buffersToWrite.size() > 2) {
+      buffersToWrite.resize(2);
+    }
+    if (!newBuffer1) {
+      newBuffer1 = std::move(buffersToWrite.back());
+      buffersToWrite.pop_back();
+      newBuffer1->reset();
+    }
+    if (!newBuffer2) {
+      newBuffer2 = std::move(buffersToWrite.back());
+      buffersToWrite.pop_back();
+      newBuffer2->reset();
+    }
+    buffersToWrite.clear();
+    output.flush();
   }
+  output.flush();
 }

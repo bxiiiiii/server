@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 #include <string>
+#include "../base/Logging.h"
 
 // namespace bxx {
 // namespace net {
@@ -84,7 +85,15 @@ class HttpRequest {
   }
 
   std::map<string, string> getheaders() { return headers_; }
-
+  void printrequest(){
+    LOG_DEBUG << methodToString();
+    LOG_DEBUG << version_;
+    LOG_DEBUG << path_;
+    for(auto i : headers_){
+      LOG_DEBUG << i.first << ":" << i.second;
+    }
+    LOG_DEBUG << body_;
+  }
  private:
   Method method_;
   unsigned int version_;

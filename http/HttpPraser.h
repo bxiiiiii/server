@@ -1,4 +1,5 @@
 #include "HttpRequest.h"
+#include <vector>
 
 class HttpPraser {
  public:
@@ -20,11 +21,11 @@ class HttpPraser {
 
   HttpPraser()
       : data_index_(0),
-        read_index_(sizeof(buf)),
+        read_index_(1),
         check_index_(0),
         start_line_(0),
         check_status_(PRASE_LINE){
-
+            buf.reserve(1024);
         };
 
   void prase_line();
@@ -32,8 +33,10 @@ class HttpPraser {
   void prase_header();
   void prase_body(size_t len);
   HTTP_CODE prase();
-  void append(const char* buf, size_t len);
-  HttpRequest getrequest(){return request_;};
+  void append(const char* data, size_t len);
+  HttpRequest getrequest(){return request_;}
+  char* getbuf() { return &*buf.begin();}
+  char* begin() {return &*buf.begin() + read_index_-1;}
 
  private:
   CHECK_STATUS check_status_;
@@ -45,5 +48,6 @@ class HttpPraser {
   int read_index_;
   int check_index_;
   int start_line_;
-  char* buf;
+  // char* buf;
+  std::vector<char> buf;
 };

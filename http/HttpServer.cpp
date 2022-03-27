@@ -23,9 +23,12 @@ LOG_DEBUG << "SUCCESS";
 }
 
 void HttpServer::onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime){
-   const char* context = buf->retrieveAllAsString().data();
-   praser.append(context, strlen(context));
-   praser.prase();
+   
+  std::string context(buf->retrieveAllAsString());
+   LOG_DEBUG << context;
+   praser.append(context.data(), context.size());
+    HttpPraser::HTTP_CODE res =  praser.prase();
    praser.getrequest().printrequest();
+  if(res == )
 }
 

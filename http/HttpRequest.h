@@ -1,5 +1,5 @@
 #ifndef HTTP_HTTPREQUEST_H
-#define Http_HTTPREQUEST_H
+#define HTTP_HTTPREQUEST_H
 
 #include <cstring>
 #include <map>

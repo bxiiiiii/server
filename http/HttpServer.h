@@ -19,10 +19,10 @@ class HttpServer {
  private:
   void onCoonnection(const TcpConnectionPtr& conn);
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime);
-  void onRequest(const TcpConnectionPtr& conn, const HttpRequest& rq);
+  // void onRequest(const TcpConnectionPtr& conn, const HttpRequest& rq);
   TcpServer server_;
   HttpCallback httpcallback_;
   HttpPraser praser;
 };
 
-#endif;
+#endif

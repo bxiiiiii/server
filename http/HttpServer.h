@@ -1,7 +1,7 @@
 #ifndef HTTP_HTTPSERVER_H
 #define HTTP_HTTPSERVER_H
 
-#include <../net/TcpServer.h>
+#include "../net/TcpServer.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 #include "HttpPraser.h"
@@ -19,7 +19,7 @@ class HttpServer {
  private:
   void onCoonnection(const TcpConnectionPtr& conn);
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime);
-  // void onRequest(const TcpConnectionPtr& conn, const HttpRequest& rq);
+  void onRequest(const TcpConnectionPtr& conn, const HttpRequest& rq);
   TcpServer server_;
   HttpCallback httpcallback_;
   HttpPraser praser;

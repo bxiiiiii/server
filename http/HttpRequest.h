@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 #include <string>
+
 #include "../base/Logging.h"
 
 // namespace bxx {
@@ -76,24 +77,31 @@ class HttpRequest {
     query_.assign(start, len);
   }
   const string& query() const { return query_; }
-  void addBody(const char* start, size_t len) {
-    body_.append(start, len);
-  }
+  void addBody(const char* start, size_t len) { body_.append(start, len); }
   const string& body() const { return body_; }
   void setHeader(string key, string value) {
     headers_.insert({key.data(), value.data()});
   }
 
   std::map<string, string> getheaders() { return headers_; }
-  void printrequest(){
+  string getHeader(const string& str) const {
+    string result;
+    auto it = headers_.find(str);
+    if (it != headers_.end()) {
+      result = it->second;
+    }
+    return result;
+  }
+  void printrequest() {
     LOG_DEBUG << methodToString();
     LOG_DEBUG << version_;
     LOG_DEBUG << path_;
-    for(auto i : headers_){
+    for (auto i : headers_) {
       LOG_DEBUG << i.first << ":" << i.second;
     }
     LOG_DEBUG << body_;
   }
+
  private:
   Method method_;
   unsigned int version_;

@@ -27,7 +27,8 @@ class Buffer {
   std::string retrieveAllAsString();
   std::string retrieveAsString(size_t len);
 
-  void append(const char* data, int len);
+  void append(const std::string str);
+  void append(const char* data, size_t len);
   void ensureWritableBytes(size_t len);
   char* beginWrite();
   void hasWritten(size_t len);

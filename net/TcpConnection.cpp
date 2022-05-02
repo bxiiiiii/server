@@ -63,6 +63,17 @@ void TcpConnection::setWriteCompleteCallBack(
   writeCompletecallback_ = callback;
 }
 
+void TcpConnection::send(Buffer *buf){
+  if(state_ == kConnected){
+    if(loop_->isInLoopThread()){
+      sendInLoop(buf->peek());
+      buf->retrieveAll();
+    }else{
+      loop_->runInLoop(std::bind(&TcpConnection::sendInLoop, this, buf->retrieveAllAsString()));
+    }
+  }
+}
+
 void TcpConnection::send(const std::string& message) {
   if (state_ == kConnected) {
     if (loop_->isInLoopThread()) {
@@ -160,6 +171,7 @@ void TcpConnection::sendInLoop(const std::string& message) {
     LOG_WARN << "disconnected";
     return;
   }
+  LOG_DEBUG << message;
   if (!channel_->Is_Writing() && outputBuffer_.readableBytes() == 0) {
     nworte = ::write(channel_->getFd(), message.data(), len);
     if (nworte >= 0) {

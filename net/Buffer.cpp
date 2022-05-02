@@ -45,7 +45,11 @@ std::string Buffer::retrieveAsString(size_t len) {
   return result;
 }
 
-void Buffer::append(const char* data, int len) {
+void Buffer::append(const std::string str){
+  append(str.data(), str.size());
+}
+
+void Buffer::append(const char* data, size_t len) {
   ensureWritableBytes(len);
   std::copy(data, data + len, beginWrite());
   hasWritten(len);

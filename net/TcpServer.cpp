@@ -9,9 +9,9 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 
 TcpServer::TcpServer(EventLoop* loop, const sockaddr_in& addr,
-                     const std::string& name)
+                     const std::string& name, bool reuseport)
     : loop_(loop),
-      acceptor_(new Acceptor(loop, addr)),
+      acceptor_(new Acceptor(loop, addr, reuseport)),
       localaddr_(addr),
       nextConnId_(0),
       name_(name),

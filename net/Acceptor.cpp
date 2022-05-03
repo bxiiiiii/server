@@ -4,14 +4,14 @@
 #include "EventLoop.h"
 #include "../base/Logging.h"
 
-Acceptor::Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr)
+Acceptor::Acceptor(EventLoop* loop, const struct sockaddr_in& listenAddr, bool reuseport)
     : loop_(loop),
       sockaddr_(listenAddr),
       sockfd_(socketopts::createNoneblockingOrDie()),
       acceptChannel(sockfd_, loop),
       listenning(false) {
-//   socketopts::filladdr(&sockaddr_);
   // TODO:set port reuse
+  socketopts::setReusePort(sockfd_, reuseport);
   socketopts::bindOrDie(sockfd_, &sockaddr_);
   acceptChannel.setReadCallBack(std::bind(&Acceptor::handleRead, this));
 }

@@ -4,7 +4,7 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 
-void defaultHttpCallback(const HttpRequest&, HttpResponse* resp){
+void defaultHttpCallback(const HttpRequest&, HttpResponse* resp) {
   resp->setStatusCode(HttpResponse::k404NotFounnd);
   resp->setStatusMessage("Not Found");
   resp->setVersion("HTTP/1.1");
@@ -12,33 +12,42 @@ void defaultHttpCallback(const HttpRequest&, HttpResponse* resp){
 }
 
 HttpServer::HttpServer(EventLoop* loop, const struct sockaddr_in& listenaddr)
-    : server_(loop, listenaddr, "httpserver"),
+    : server_(loop, listenaddr, "httpserver", true),
       httpcallback_(defaultHttpCallback) {
   server_.setConnectionCallBack(
-      std::bind(&HttpServer::onCoonnection, this, _1));
+      std::bind(&HttpServer::onConnection, this, _1));
   server_.setMessageCallBack(
       std::bind(&HttpServer::onMessage, this, _1, _2, _3));
 }
 
 void HttpServer::start() { server_.start(); }
 
-void HttpServer::onCoonnection(const TcpConnectionPtr& conn) {
+void HttpServer::onConnection(const TcpConnectionPtr& conn) {
   LOG_DEBUG << "SUCCESS";
 }
 
 void HttpServer::onMessage(const TcpConnectionPtr& conn, Buffer* buf,
                            Timestamp receiveTime) {
-  std::string context(buf->retrieveAllAsString());
-  LOG_DEBUG << context;
-  praser.append(context.data(), context.size());
-  HttpPraser::HTTP_CODE res = praser.prase();
-  praser.getrequest().printrequest();
-  if (res == HttpPraser::GET_REQUEST) {
+  // std::string context(buf->retrieveAllAsString());
+  // LOG_DEBUG << context;
+  // praser.append(context.data(), context.size());
+  // HttpPraser::HTTP_CODE res = praser.prase();
+  // praser.getrequest().printrequest();
+  // if (res == HttpPraser::GET_REQUEST) {
+  //   onRequest(conn, praser.getrequest());
+  // }
+  char* content = const_cast<char*>(buf->peek());
+  int len = buf->readableBytes();
+  // buf->retrieveAll();
+  HttpPraser p(content, len);
+  HttpPraser::HTTP_CODE result = p.prase();
+  if(result == HttpPraser::GET_REQUEST) {
     onRequest(conn, praser.getrequest());
   }
 }
 
-void HttpServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& rq){
+void HttpServer::onRequest(const TcpConnectionPtr& conn,
+                           const HttpRequest& rq) {
   const std::string connection = rq.getHeader("Connection");
   HttpResponse response(conn);
   response.setConnection(connection);
@@ -47,7 +56,7 @@ void HttpServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& rq){
   response.appendToBuffer(&buf);
   LOG_DEBUG << buf.peek();
   conn->send(buf.retrieveAllAsString());
-  if(response.closeConnection()){
+  if (response.closeConnection()) {
     conn->shutdown();
   }
 }

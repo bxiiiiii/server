@@ -49,5 +49,4 @@ add_executable(httpserver
                 http/HttpPraser.cpp
                 http/HttpServer.h
                 http/HttpServer.cpp
-                http/testt.cpp
                 )          

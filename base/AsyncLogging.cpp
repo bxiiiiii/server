@@ -63,10 +63,6 @@ void AsyncLogging::threadFunc() {
   buffersToWrite.reserve(16);
   while (running_) {
     {
-      printf("%p\n", currentBuffer_.get());
-      printf("%p\n", nextBuffer_.get());
-      printf("%p\n", newBuffer1.get());
-      printf("%p\n", newBuffer2.get());
       std::unique_lock<std::mutex> lock(mutex_);
       if (buffers_.empty()) {
         cond_.wait_for(lock, std::chrono::seconds(flushInterval_));
@@ -82,9 +78,9 @@ void AsyncLogging::threadFunc() {
     if (buffersToWrite.size() > 25) {
       buffersToWrite.erase(buffersToWrite.begin() + 2, buffersToWrite.end());
     }
-    std::cout << buffersToWrite.size() << std::endl;
+    // std::cout << buffersToWrite.size() << std::endl;
     for (auto& buffer : buffersToWrite) {
-      std::cout << buffer->getlen() << std::endl;
+      // std::cout << buffer->getlen() << std::endl;
       output.append(buffer->getdata(), buffer->getlen());
     }
     if (buffersToWrite.size() > 2) {

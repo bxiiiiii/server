@@ -12,6 +12,7 @@ void listenOrDie(int sockfd);
 void close(int sockfd);
 int accept(int sockfd, const struct sockaddr_in* listenAddr);
 void filladdr(struct sockaddr_in* addr, int port);
+void setReusePort(int sockfd, bool on);
 }
 
 #endif

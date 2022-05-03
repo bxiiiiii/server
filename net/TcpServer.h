@@ -10,7 +10,7 @@ class Acceptor;
 
 class TcpServer {
  public:
-  TcpServer(EventLoop* loop, const sockaddr_in& addr, const std::string& name);
+  TcpServer(EventLoop* loop, const sockaddr_in& addr, const std::string& name, bool reuseport);
   ~TcpServer();
 
   void start();

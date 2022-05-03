@@ -1,12 +1,14 @@
 #include "Channel.h"
 
+#include <unistd.h>
+
+#include "../base/Logging.h"
 #include "EventLoop.h"
 #include "Poller.h"
-#include "../base/Logging.h"
 
 const int Channel::kNoneEvent = 0;
-const int Channel::kReadEvent = POLLIN;
-const int Channel::kWriteEvent = POLLOUT;
+const int Channel::kReadEvent = EPOLLIN;
+const int Channel::kWriteEvent = EPOLLOUT;
 
 Channel::Channel(int fd, EventLoop* loop)
     : loop_(loop),
@@ -16,12 +18,12 @@ Channel::Channel(int fd, EventLoop* loop)
       Pollindex_(-1),
       addedToLoop_(false),
       eventHanding_(false) {
+  LOG_DEBUG << "";
+}
 
-        LOG_DEBUG << "";
-      }
-
-Channel::~Channel(){
+Channel::~Channel() {
   LOG_DEBUG << "channel des";
+  ::close(fd_);
 };
 
 void Channel::setReadCallBack(ReadEventCallBack func) { readCallBack = func; }
@@ -77,18 +79,19 @@ bool Channel::Is_Reading() { return event_ & kReadEvent; }
 
 void Channel::handleEvent(Timestamp receivetime) {
   eventHanding_ = true;
-    // if ((revent_ & POLLHUP) && !(revent_ & POLLIN)){
-    // if (closeCallBack) closeCallBack();
-  // }
-  if (revent_ & POLLIN) {
+  if ((revent_ & EPOLLHUP) && !(revent_ & EPOLLIN)) {
+    if (closeCallBack) closeCallBack();
+  }
+  if (revent_ & (EPOLLIN | EPOLLPRI | EPOLLHUP)) {
     if (readCallBack) {
       readCallBack(receivetime);
     }
     // readCallBack(receivetime);
   }
-  if (revent_ & POLLOUT) {
+  if (revent_ & EPOLLOUT) {
     if (writeCallBack) writeCallBack();
   }
+  eventHanding_ = false;
 }
 
 void Channel::update() {

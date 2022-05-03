@@ -1,31 +1,32 @@
-#ifndef NET_POLLER_H
-#define NET_POLLER_H
-#include <poll.h>
+#ifndef EPOLL_H
+#define EPOLL_H
+#include <sys/epoll.h>
 
 #include <map>
 #include <vector>
-
-// #include "Channel.h"
-// #include "Timestamp.h"
 class Channel;
 class Timestamp;
 class EventLoop;
 typedef std::vector<Channel*> ChannelList;
-class Poller {
- public:
+typedef std::map<int, Channel*> ChannelMap;
+typedef std::vector<struct epoll_event> EventList;
 
-  Poller(EventLoop* loop);
-  ~Poller();
-  Timestamp poll(int time, ChannelList* activeChannel);
+class Epoll {
+ public:
+  Epoll(EventLoop* loop);
+  ~Epoll();
+  Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
 
  private:
-  void fileActiveChannels(int numEvents, ChannelList* activeChannels);
+  void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
+  void update(int operation, Channel* channel);
 
   EventLoop* loop_;
-  std::vector<struct pollfd> PollFdList;
-    std::map<int, Channel*> ChannelMap;
+  ChannelMap channels_;
+  int epollfd_;
+  EventList events_;
 };
 
 #endif

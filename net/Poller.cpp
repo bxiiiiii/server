@@ -1,80 +1,72 @@
 #include "Poller.h"
-#include "Channel.h"
-#include "../base/Timestamp.h"
-#include "../base/Logging.h"
-#include <syscall.h>
+
+#include <Channel.h>
 #include <unistd.h>
 
-Poller::Poller(EventLoop* loop) : loop_(loop) {}
+#include "../base/Timestamp.h"
+#include "../base/Logging.h"
 
-  Poller::~Poller() = default;
+Epoll::Epoll(EventLoop* loop)
+    : loop_(loop), epollfd_(::epoll_create1(EPOLL_CLOEXEC)), events_(16) {}
 
-Timestamp Poller::poll(int time, ChannelList* activeChannels) {
-  int numEvents = ::poll(PollFdList.data(), PollFdList.size() + 1, time);
-  // LOG_DEBUG << "numevents : " << numEvents;
-  Timestamp timestamp;
+Epoll::~Epoll() { ::close(epollfd_); }
+
+Timestamp Epoll::poll(int time, ChannelList* activeChannels) {
+  int numEvents = ::epoll_wait(epollfd_, &*events_.begin(),
+                               static_cast<int>(events_.size()), time);
+  Timestamp now(Timestamp::now());
   if (numEvents > 0) {
-    fileActiveChannels(numEvents, activeChannels);
+    fillActiveChannels(numEvents, activeChannels);
+    if (static_cast<size_t>(numEvents) == events_.size()) {
+      events_.resize(events_.size() * 2);
+    }
   }
-
-  return timestamp;
+  return now;
 }
 
-void Poller::updateChannel(Channel* channel) {
-  if (channel->getPollindex() < 0) {
-    struct pollfd event;
-    event.fd = channel->getFd();
-    event.events = channel->getEvent();
-    event.revents = 0;
-    PollFdList.push_back(event);
-    int idx = PollFdList.size() - 1;
-    channel->setPollindex(idx);
-    ChannelMap[event.fd] = channel;
-
-  LOG_DEBUG << "fd:" << channel->getFd() << " pi:" << channel->getPollindex() << " " << PollFdList.size()<< " " << syscall(SYS_gettid);
+void Epoll::updateChannel(Channel* channel) {
+  const int index = channel->getPollindex();
+  int fd = channel->getFd();
+  if (index == -1 || index == 2) {
+    if (index == -1) {
+      channels_[fd] = channel;
+      LOG_DEBUG<<channels_.size();
+    }
+    channel->setPollindex(1);
+    update(EPOLL_CTL_ADD, channel);
   } else {
-    int idx = channel->getPollindex();
-    struct pollfd& event = PollFdList[idx];
-    event.events = channel->getEvent();
-    event.revents = 0;
     if (channel->Is_NoneEvent()) {
-      event.fd = -1;
+      update(EPOLL_CTL_DEL, channel);
+      channel->setPollindex(2);
+    } else {
+      update(EPOLL_CTL_MOD, channel);
     }
   }
 }
-
-void Poller::removeChannel(Channel* channel) {
-  int idx = channel->getPollindex();
-  struct pollfd& event = PollFdList[idx];
-  int n = ChannelMap.erase(idx);
-  LOG_DEBUG << idx << " " << PollFdList.size();
-  if (static_cast<size_t>(idx) == PollFdList.size() - 1) {
-    PollFdList.pop_back();
-  } else {
-    int channelAtEnd = PollFdList.back().fd;
-    iter_swap(PollFdList.begin() + idx, PollFdList.end() - 1);
-    if (channelAtEnd < 0) {
-      channelAtEnd = -channelAtEnd - 1;
-    }
-    ChannelMap[channelAtEnd]->setPollindex(idx);
-    PollFdList.pop_back();
+void Epoll::removeChannel(Channel* channel) {
+  int fd = channel->getFd();
+  int index = channel->getPollindex();
+  size_t n = channels_.erase(fd);
+  LOG_DEBUG << channels_.size();
+  if (index == 1) {
+    update(EPOLL_CTL_DEL, channel);
   }
+  channel->setPollindex(-1);
 }
 
-void Poller::fileActiveChannels(int numEvents, ChannelList* activeChannel) {
-  for (auto event : PollFdList) {
-    if (numEvents == 0) break;
-    if (event.revents > 0) {
-      LOG_DEBUG << event.fd;
-      auto ch = ChannelMap.find(event.fd);
-      // for(auto i : ChannelMap){
-      //   std::cout << i.first << " " << i.second->getFd() << std::endl;
-      // }
-      Channel* channel = ch->second;
-      LOG_DEBUG << channel->getFd();
-      channel->setRevent(event.revents);
-      activeChannel->push_back(channel);
-      --numEvents;
-    }
+void Epoll::update(int operation, Channel* channel) {
+  struct epoll_event event;
+  event.events = channel->getEvent();
+  event.data.ptr = channel;
+  int fd = channel->getFd();
+  ::epoll_ctl(epollfd_, operation, fd, &event);
+}
+
+void Epoll::fillActiveChannels(int numEvents,
+                               ChannelList* activeChannels) const {
+  for (int i = 0; i < numEvents; ++i) {
+    Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
+    channel->setRevent(events_[i].events);
+    activeChannels->push_back(channel);
   }
 }

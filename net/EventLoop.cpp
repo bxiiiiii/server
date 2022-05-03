@@ -23,11 +23,11 @@ EventLoop::EventLoop()
     : looping_(false),
       threadId(syscall(SYS_gettid)),
       quit_(false),
-      poller_(new Poller(this)),
+      poller_(std::make_unique<Epoll>(this)),
       eventHandling_(false),
       callingPendingFunctors_(false),
       wakeupFd_(createEventfd()),
-      wakeupChannel_(new Channel(wakeupFd_, this)) {
+      wakeupChannel_(std::make_unique<Channel>(wakeupFd_, this)) {
   wakeupChannel_->setReadCallBack(std::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
   wakeupChannel_->enableReading();
@@ -68,7 +68,7 @@ void EventLoop::quit() {
 
 void EventLoop::handleRead() {
   uint64_t one = 1;
-  ssize_t n = ::read(wakeupFd_, &one, sizeof one);
+  ssize_t n = ::read(wakeupFd_, &one, sizeof(one));
 }
 
 void EventLoop::assertInLoopThread() {}
@@ -107,7 +107,7 @@ void EventLoop::queueInLoop(const Functor& callback) {
 
 void EventLoop::wakeup() {
   uint64_t one = 1;
-  ssize_t n = write(wakeupFd_, &one, sizeof one);
+  ssize_t n = write(wakeupFd_, &one, sizeof(one));
 }
 
 void EventLoop::abortNotInLoopThread() {}

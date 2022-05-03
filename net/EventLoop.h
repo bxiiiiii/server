@@ -7,7 +7,7 @@
 #include "../base/Logging.h"
 
 // class Channel;
-class Poller;
+class Epoll;
 class Channel;
 typedef std::vector<Channel*> ChannelList;
 
@@ -41,7 +41,7 @@ private:
     bool callingPendingFunctors_;
     const pid_t threadId;
     Timestamp ret_;
-    std::unique_ptr<Poller> poller_;
+    std::unique_ptr<Epoll> poller_;
     ChannelList activechannels_;
 
     int wakeupFd_;

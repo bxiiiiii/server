@@ -9,6 +9,7 @@
 #include "../base/Logging.h"
 #include "Channel.h"
 #include "Poller.h"
+#include "TimerQueue.h"
 
 int createEventfd() {
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -72,9 +73,10 @@ void EventLoop::handleRead() {
 }
 
 void EventLoop::assertInLoopThread() {}
-bool EventLoop::isInLoopThread() { 
+bool EventLoop::isInLoopThread() {
   LOG_DEBUG << threadId << " " << syscall(SYS_gettid);
-  return threadId == syscall(SYS_gettid); }
+  return threadId == syscall(SYS_gettid);
+}
 
 void EventLoop::updateChannel(Channel* channel) {
   poller_->updateChannel(channel);
@@ -123,4 +125,19 @@ void EventLoop::doPendingFunctors() {
     functor();
   }
   callingPendingFunctors_ = false;
+}
+
+std::weak_ptr<Timer> EventLoop::runAt(
+    const std::chrono::steady_clock::time_point& time_point, TimeCallBack cb) {
+  return timerQueue_->addTimer(std::move(cb), time_point, Timer::TimeUnit());
+}
+std::weak_ptr<Timer> EventLoop::runAfter(const std::chrono::nanoseconds& delay,
+                                         TimeCallBack cb) {
+  Timer::TimePoint time = std::chrono::steady_clock::now() + delay;
+  return timerQueue_->addTimer(std::move(cb), time, Timer::TimeUnit());
+}
+std::weak_ptr<Timer> EventLoop::runEvery(
+    const std::chrono::nanoseconds& interval, TimeCallBack cb) {
+  Timer::TimePoint time = std::chrono::steady_clock::now() + interval;
+  return timerQueue_->addTimer(std::move(cb), time, interval);
 }

@@ -22,4 +22,6 @@ typedef std::function<void()> Functor;
 
 typedef std::function<void(EventLoop*)> ThreadInitCallback;
 
+typedef std::function<void()> TimeCallBack;
+
 #endif
